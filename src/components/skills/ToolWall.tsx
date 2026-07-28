@@ -445,6 +445,7 @@ export function ToolWall({
                   <span className="ml-1.5 h-px flex-1 bg-foreground/20" aria-hidden />
                 </div>
 
+                <div className="relative">
                 <div className="relative mt-4 grid grid-cols-2 items-start gap-3 sm:grid-cols-[16.5rem_minmax(2.75rem,1fr)_16.5rem_minmax(2.75rem,1fr)_16.5rem] sm:justify-between sm:gap-x-8 sm:gap-y-5">
                   {domainTools.map((tool, i) => {
                     const isActive = activeId === tool.id;
@@ -585,81 +586,82 @@ export function ToolWall({
                     </button>
                   </div>
                 )}
+                </div>
+
+                {selectedTool?.domain === domain.id && (
+                  <div className="relative z-[2] mt-6 rounded-xl border border-black/10 bg-[#fffdf8]/92 p-5 shadow-[0_12px_28px_-16px_rgba(20,20,40,0.35)]">
+                    <m.div
+                      key={selectedTool.id}
+                      initial={{ opacity: 0, y: 6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.25 }}
+                    >
+                      <div className="flex items-start justify-between gap-4">
+                        <div>
+                          <p className="font-mono text-[10px] tracking-[0.25em] text-primary/90">TOOL DETECTED</p>
+                          <h4 className="mt-1 font-display text-lg font-semibold text-foreground">{selectedTool.name}</h4>
+                          <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+                            {selectedTool.categoryTag}
+                          </p>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => setSelectedId(null)}
+                          aria-label="Close inspection panel"
+                          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
+                        >
+                          <X className="h-4 w-4" />
+                        </button>
+                      </div>
+
+                      <div className="mt-4 grid gap-6 sm:grid-cols-2">
+                        <div>
+                          <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">USED FOR</p>
+                          <ul className="mt-2 space-y-1 text-sm text-foreground/80">
+                            {selectedTool.usedFor.map((u) => (
+                              <li key={u} className="flex items-center gap-2">
+                                <CircleDot className="h-3 w-3 text-primary/80" />
+                                {u}
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                        <div>
+                          <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+                            CONNECTED PROJECTS{" "}
+                            <span className="text-foreground/70">
+                              {String(connectedProjects.length).padStart(2, "0")}
+                            </span>
+                          </p>
+                          {connectedProjects.length > 0 ? (
+                            <ul className="mt-2 space-y-1 text-sm text-foreground/80">
+                              {connectedProjects.map((p) => (
+                                <li key={p.title}>{p.title}</li>
+                              ))}
+                            </ul>
+                          ) : (
+                            <p className="mt-2 text-sm text-muted-foreground">
+                              No linked projects yet — check back soon.
+                            </p>
+                          )}
+                          {selectedTool.filterCategory && (
+                            <button
+                              type="button"
+                              onClick={() => onExploreProjects(selectedTool.filterCategory!)}
+                              className="mt-3 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/25"
+                            >
+                              Explore related projects <ArrowUpRight className="h-3.5 w-3.5" />
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </m.div>
+                  </div>
+                )}
               </div>
             );
           })}
         </div>
-
-        {selectedTool && (
-          <div className="relative z-[2] mt-12 rounded-xl border border-black/10 bg-[#fffdf8]/92 p-5 shadow-[0_12px_28px_-16px_rgba(20,20,40,0.35)]">
-            <m.div
-              key={selectedTool.id}
-              initial={{ opacity: 0, y: 6 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.25 }}
-            >
-              <div className="flex items-start justify-between gap-4">
-                <div>
-                  <p className="font-mono text-[10px] tracking-[0.25em] text-primary/90">TOOL DETECTED</p>
-                  <h4 className="mt-1 font-display text-lg font-semibold text-foreground">{selectedTool.name}</h4>
-                  <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-                    {selectedTool.categoryTag}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  onClick={() => setSelectedId(null)}
-                  aria-label="Close inspection panel"
-                  className="rounded-md p-1.5 text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
-                >
-                  <X className="h-4 w-4" />
-                </button>
-              </div>
-
-              <div className="mt-4 grid gap-6 sm:grid-cols-2">
-                <div>
-                  <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">USED FOR</p>
-                  <ul className="mt-2 space-y-1 text-sm text-foreground/80">
-                    {selectedTool.usedFor.map((u) => (
-                      <li key={u} className="flex items-center gap-2">
-                        <CircleDot className="h-3 w-3 text-primary/80" />
-                        {u}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-                <div>
-                  <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-                    CONNECTED PROJECTS{" "}
-                    <span className="text-foreground/70">
-                      {String(connectedProjects.length).padStart(2, "0")}
-                    </span>
-                  </p>
-                  {connectedProjects.length > 0 ? (
-                    <ul className="mt-2 space-y-1 text-sm text-foreground/80">
-                      {connectedProjects.map((p) => (
-                        <li key={p.title}>{p.title}</li>
-                      ))}
-                    </ul>
-                  ) : (
-                    <p className="mt-2 text-sm text-muted-foreground">
-                      No linked projects yet — check back soon.
-                    </p>
-                  )}
-                  {selectedTool.filterCategory && (
-                    <button
-                      type="button"
-                      onClick={() => onExploreProjects(selectedTool.filterCategory!)}
-                      className="mt-3 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/25"
-                    >
-                      Explore related projects <ArrowUpRight className="h-3.5 w-3.5" />
-                    </button>
-                  )}
-                </div>
-              </div>
-            </m.div>
-          </div>
-        )}
 
           <div className="pegboard-quote relative z-[2]">
             <p>Precision in tools, and in ideas, builds impact in engineering.</p>

@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ROBOT_ARRIVAL_PAUSE_MS,
+  ROBOT_GUIDE_NAME,
   ROBOT_GUIDE_STOPS,
   ROBOT_NOTE_DURATION_MS,
   type RobotGuideStop,
@@ -16,8 +17,8 @@ function GuideRobotSvg({ scanning }: { scanning: boolean }) {
   return (
     <svg
       viewBox="0 0 64 78"
-      width="56"
-      height="68"
+      width="72"
+      height="88"
       aria-hidden
       className="robot-guide-svg"
     >
@@ -75,11 +76,17 @@ export function RobotGuide() {
   const pausedRef = useRef(false);
   const lastScrollYRef = useRef(0);
 
+  const noteOpenRef = useRef(false);
   const [entered, setEntered] = useState(false);
   const [activeStop, setActiveStop] = useState<RobotGuideStop | null>(null);
   const [noteOpen, setNoteOpen] = useState(false);
   const [scanning, setScanning] = useState(true);
   const [hidden, setHidden] = useState(false);
+
+  const setNoteOpenSafe = (open: boolean) => {
+    noteOpenRef.current = open;
+    setNoteOpen(open);
+  };
 
   useEffect(() => {
     const mqMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
@@ -167,6 +174,13 @@ export function RobotGuide() {
       return ROBOT_GUIDE_STOPS.find((s) => s.id === bestId) ?? null;
     };
 
+    const scheduleNoteDismiss = (ms: number) => {
+      if (noteTimerRef.current) window.clearTimeout(noteTimerRef.current);
+      noteTimerRef.current = window.setTimeout(() => {
+        setNoteOpenSafe(false);
+      }, ms);
+    };
+
     const announceStop = (stop: RobotGuideStop) => {
       if (stop.id === lastStopIdRef.current) return;
       lastStopIdRef.current = stop.id;
@@ -177,16 +191,15 @@ export function RobotGuide() {
 
       // Visual "pause" for the note only — do NOT snap / freeze Y (that caused jumps)
       pausedRef.current = true;
-      setNoteOpen(false);
+      setNoteOpenSafe(false);
       setScanning(true);
 
       const pause = reduceMotionRef.current ? 0 : ROBOT_ARRIVAL_PAUSE_MS;
       pauseTimerRef.current = window.setTimeout(() => {
-        setNoteOpen(true);
+        setNoteOpenSafe(true);
         pausedRef.current = false;
-        noteTimerRef.current = window.setTimeout(() => {
-          setNoteOpen(false);
-        }, ROBOT_NOTE_DURATION_MS);
+        // Longer while the visitor is idle and reading
+        scheduleNoteDismiss(ROBOT_NOTE_DURATION_MS);
       }, pause);
     };
 
@@ -224,6 +237,7 @@ export function RobotGuide() {
     sync();
 
     let scrollRaf = 0;
+    let idleRestartTimer: number | null = null;
     const onScroll = () => {
       if (scrollRaf) return;
       scrollRaf = requestAnimationFrame(() => {
@@ -233,6 +247,14 @@ export function RobotGuide() {
         lastScrollYRef.current = sy;
         if (!reduceMotionRef.current) {
           tiltRef.current = Math.max(-3.5, Math.min(3.5, tiltRef.current + dy * 0.02));
+        }
+        // Keep note up while moving; when the user stops, give a full idle read window
+        if (noteOpenRef.current && Math.abs(dy) > 1) {
+          if (noteTimerRef.current) window.clearTimeout(noteTimerRef.current);
+          if (idleRestartTimer) window.clearTimeout(idleRestartTimer);
+          idleRestartTimer = window.setTimeout(() => {
+            scheduleNoteDismiss(ROBOT_NOTE_DURATION_MS);
+          }, 450);
         }
         sync();
       });
@@ -273,6 +295,7 @@ export function RobotGuide() {
       if (scrollRaf) cancelAnimationFrame(scrollRaf);
       if (noteTimerRef.current) window.clearTimeout(noteTimerRef.current);
       if (pauseTimerRef.current) window.clearTimeout(pauseTimerRef.current);
+      if (idleRestartTimer) window.clearTimeout(idleRestartTimer);
     };
   }, [hidden]);
 
@@ -290,7 +313,7 @@ export function RobotGuide() {
             {activeStop && (
               <>
                 <p className="robot-guide-note-meta">
-                  <span>ROBOT NOTE</span>
+                  <span>{ROBOT_GUIDE_NAME.toUpperCase()} NOTE</span>
                   <span aria-hidden> // </span>
                   <span>{activeStop.code}</span>
                   <span className="robot-guide-note-label">{activeStop.label}</span>
@@ -309,14 +332,15 @@ export function RobotGuide() {
 
           <div className="robot-guide-unit" aria-hidden>
             <GuideRobotSvg scanning={scanning && noteOpen === false} />
+            <p className="robot-guide-name">{ROBOT_GUIDE_NAME}</p>
           </div>
         </div>
       </div>
 
       <span className="sr-only">
         {activeStop
-          ? `Robot guide at ${activeStop.label}: ${activeStop.lines.join(" ")}`
-          : "Robot guide exploring the portfolio"}
+          ? `${ROBOT_GUIDE_NAME} at ${activeStop.label}: ${activeStop.lines.join(" ")}`
+          : `${ROBOT_GUIDE_NAME}, portfolio guide robot`}
       </span>
     </div>
   );

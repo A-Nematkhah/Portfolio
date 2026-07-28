@@ -8,7 +8,7 @@ export type RobotGuideStop = {
   selector: string;
   /** Short uppercase label shown in the note header */
   label: string;
-  /** Note index shown as ROBOT NOTE // NN */
+  /** Note index shown as ARCHI NOTE // NN */
   code: string;
   /** First-person lines from the robot */
   lines: string[];
@@ -21,8 +21,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "INTRO",
     code: "01",
     lines: [
-      "Hi! I'm your guide.",
-      "I'll show you around Amirhossein's engineering world.",
+      "Archi online. Local tour unit ready.",
+      "No liability for excessive engineering enthusiasm.",
     ],
   },
   {
@@ -31,7 +31,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "MECHATRONICS",
     code: "02",
     lines: [
-      "Here, mechanical systems meet electronics, sensors, and control.",
+      "Mechanics, electronics, and control — in one chassis.",
+      "Also known as: why one major was never enough.",
     ],
   },
   {
@@ -40,8 +41,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "PROJECTS",
     code: "03",
     lines: [
-      "These are the systems we've built.",
-      "Let's see what they can do.",
+      "These aren't mockups. They move.",
+      "Sometimes on purpose.",
     ],
   },
   {
@@ -50,8 +51,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "TOOL WALL",
     code: "04",
     lines: [
-      "These are my engineering tools.",
-      "From CAD and mechanical design to simulation and manufacturing.",
+      "CAD, CFD, and a suspicious amount of coffee.",
+      "If it can be modeled, it will be modeled.",
     ],
   },
   {
@@ -60,8 +61,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "ROBOTICS",
     code: "05",
     lines: [
-      "Now we're entering robotics.",
-      "This is where machines start to perceive and interact with the world.",
+      "Sensors online. World looks noisy from down here.",
+      "Perception first. Drama later.",
     ],
   },
   {
@@ -70,8 +71,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "AI / RL",
     code: "06",
     lines: [
-      "Here is where I teach machines to learn.",
-      "RL, LLMs, reward design, and intelligent behavior.",
+      "Teaching machines to learn. Results may vary.",
+      "Reward shaping: 90% science, 10% negotiation.",
     ],
   },
   {
@@ -80,8 +81,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "FIELD LOG",
     code: "07",
     lines: [
-      "Industrial deployments and project control.",
-      "This is where engineering meets production floors.",
+      "Production floors. Deadlines. Real constraints.",
+      "Where PowerPoint slides go to meet physics.",
     ],
   },
   {
@@ -90,8 +91,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "RESEARCH",
     code: "08",
     lines: [
-      "This is where the experiments happen.",
-      "Questions become hypotheses, and hypotheses become experiments.",
+      "Hypothesis detected. Experiment loading…",
+      "Failure is data. Especially the expensive kind.",
     ],
   },
   {
@@ -100,8 +101,8 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "CREDENTIALS",
     code: "09",
     lines: [
-      "Proof of completed missions.",
-      "Training logged and verified.",
+      "Training complete. Sticker collection growing.",
+      "Proof that learning was logged, not just claimed.",
     ],
   },
   {
@@ -110,14 +111,17 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     label: "CONTACT",
     code: "10",
     lines: [
-      "We've reached the end of the tour.",
-      "Want to build something together?",
+      "End of route. Handshake protocol ready.",
+      "Got a problem worth building for?",
     ],
   },
 ];
 
-/** How long the note stays open after arriving at a stop (ms). */
-export const ROBOT_NOTE_DURATION_MS = 4200;
+/** How long the note stays open after the user stops scrolling (ms). */
+export const ROBOT_NOTE_DURATION_MS = 9000;
 
 /** Brief pause before the note unfolds (ms). */
 export const ROBOT_ARRIVAL_PAUSE_MS = 280;
+
+/** Display name for the guide robot. */
+export const ROBOT_GUIDE_NAME = "Archi";

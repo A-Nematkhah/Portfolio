@@ -1,0 +1,10 @@
+export { Nav } from "./Nav";
+export { Hero } from "./Hero";
+export { About } from "./About";
+export { Projects } from "./Projects";
+export { FeaturedShowcase } from "./FeaturedShowcase";
+export { Experience } from "./Experience";
+export { Research } from "./Research";
+export { Certificates } from "./Certificates";
+export { Contact } from "./Contact";
+export { Footer } from "./Footer";

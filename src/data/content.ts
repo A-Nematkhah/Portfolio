@@ -1,0 +1,106 @@
+import {
+  Bot,
+  Cpu,
+  Sparkles,
+  Layers,
+  Activity,
+  Shield,
+  type LucideIcon,
+} from "lucide-react";
+import { pub } from "@/lib/pub";
+
+export const NAV = [
+  "Home",
+  "About",
+  "Skills",
+  "Projects",
+  "Experience",
+  "Certificates",
+  "Contact",
+] as const;
+
+export const EXPERIENCE = [
+  {
+    co: "Mechatronic Mobtakeran Arg",
+    role: "Industrial Designer",
+    bullets: [
+      "Laboratory printers",
+      "Dental milling systems",
+      "Dental scanners",
+      "Mechanical product development",
+    ],
+  },
+  {
+    co: "Iranian Steel Development Group",
+    role: "Mechanical Designer & Engineer",
+    bullets: [
+      "Steel production line equipment",
+      "Industrial machinery design",
+      "Manufacturing supervision",
+      "Project scheduling and control",
+    ],
+  },
+  {
+    co: "NYOP — Netherlands",
+    role: "Product Designer",
+    bullets: [
+      "Smart home products",
+      "Smart insect trap",
+      "Air quality monitoring",
+      "Prototype development & CAD optimization",
+    ],
+  },
+] as const;
+
+export const RESEARCH: { icon: LucideIcon; t: string; d: string }[] = [
+  { icon: Bot, t: "Reinforcement Learning", d: "Reward shaping & policy optimization" },
+  { icon: Cpu, t: "Autonomous Systems", d: "Mobile robotics & navigation" },
+  { icon: Sparkles, t: "LLM-Based Reward Shaping", d: "Language models guiding RL agents" },
+  { icon: Layers, t: "Sensor Fusion", d: "Multi-modal perception & estimation" },
+  { icon: Activity, t: "Intelligent Control", d: "MPC, adaptive & robust control" },
+  { icon: Shield, t: "Robotics Safety", d: "Constrained learning systems" },
+];
+
+export type Certificate = {
+  src: string;
+  title: string;
+  issuer: string;
+  category: string;
+  instructor: string;
+  issued: string;
+  certId: string;
+  verifyUrl: string;
+};
+
+export const CERTIFICATES: Certificate[] = [
+  {
+    src: pub("/pictures/cert-1.png"),
+    title: "Mastering Machine Learning with Python: A Comprehensive Online Course",
+    issuer: "FaraDars",
+    category: "Machine Learning",
+    instructor: "Dr. Pejman Eqbali",
+    issued: "July 22, 2025",
+    certId: "1FB53901",
+    verifyUrl: "https://faradars.org/verify/1FB53901",
+  },
+  {
+    src: pub("/pictures/cert-2.png"),
+    title: "Mastering Microsoft Project 2019: Your Ultimate Guide to Project Management Success",
+    issuer: "FaraDars",
+    category: "Project Management",
+    instructor: "Eng. Masoud Amini",
+    issued: "March 8, 2025",
+    certId: "05419F53",
+    verifyUrl: "https://faradars.org/verify/05419F53",
+  },
+  {
+    src: pub("/pictures/cert-3.png"),
+    title: "Mastering Python: Advanced Techniques for Reinforcement Learning",
+    issuer: "FaraDars",
+    category: "Reinforcement Learning",
+    instructor: "Dr. Sadegh Eskandari",
+    issued: "November 02, 2025",
+    certId: "38FA56B2",
+    verifyUrl: "https://faradars.org/verify/38FA56B2",
+  },
+];

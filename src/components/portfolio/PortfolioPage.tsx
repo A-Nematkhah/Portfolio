@@ -7,6 +7,7 @@ import { fetchProjects, type DbProject } from "@/lib/db-projects";
 import { resolveAssetUrl, resolveMediaList } from "@/lib/resolve-asset";
 import { PROJECTS, type Project } from "@/data/projects";
 import { BlueprintBackground } from "@/components/effects/BlueprintBackground";
+import { RobotGuide } from "@/components/effects/RobotGuide";
 import { ToolWall } from "@/components/skills/ToolWall";
 import { Nav } from "@/components/portfolio/Nav";
 import { Hero } from "@/components/portfolio/Hero";
@@ -98,6 +99,8 @@ export function PortfolioPage() {
         </main>
 
         <Footer />
+
+        <RobotGuide />
 
         <a
           href="#top"

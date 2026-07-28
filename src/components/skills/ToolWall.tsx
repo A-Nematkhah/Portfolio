@@ -436,7 +436,7 @@ export function ToolWall({
             const below = BELOW_ACCENT[domain.id];
             const margin = MARGIN_ACCENT[domain.id];
             return (
-              <div key={domain.id} className="relative">
+              <div key={domain.id} id={`skills-${domain.id}`} className="relative">
                 <div className="flex items-center gap-2.5 pb-2">
                   <DomainIcon className="h-4 w-4 text-foreground" strokeWidth={1.9} />
                   <h3 className="font-display text-[13px] font-bold uppercase tracking-[0.12em] text-foreground">

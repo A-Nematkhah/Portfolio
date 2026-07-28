@@ -408,4 +408,137 @@
     .pegboard-board { transition: none; }
     .skill-card { transition: none; }
   }
+
+  /* ===== Robot Guide companion ===== */
+  .robot-guide {
+    position: fixed;
+    top: 0;
+    right: max(0.5rem, calc((100vw - 80rem) / 2 - 5.25rem));
+    z-index: 25;
+    width: max-content;
+    max-width: min(15.5rem, calc(100vw - 2rem));
+    pointer-events: none;
+    opacity: 0;
+    transform: translateX(4.5rem);
+    transition: opacity 420ms ease, transform 520ms cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  .robot-guide.is-entered {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  .robot-guide-motion {
+    --rg-y: 40vh;
+    --rg-tilt: 0deg;
+    will-change: transform;
+    transform: translate3d(0, var(--rg-y), 0) rotate(var(--rg-tilt));
+  }
+
+  .robot-guide-stack {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 0.35rem;
+  }
+
+  .robot-guide-unit {
+    display: grid;
+    place-items: center;
+    filter: drop-shadow(0 10px 16px oklch(0.22 0.04 260 / 0.18));
+  }
+
+  .robot-guide-note {
+    position: relative;
+    width: 14.5rem;
+    margin-right: 0.35rem;
+    padding: 0.7rem 0.8rem 0.75rem;
+    border-radius: var(--radius);
+    background: oklch(1 0 0 / 0.9);
+    backdrop-filter: blur(14px);
+    border: 1px solid oklch(0.22 0.04 260 / 0.1);
+    box-shadow: 0 12px 28px -16px oklch(0.22 0.04 260 / 0.28);
+    transform-origin: bottom right;
+    transform: translateY(10px) scale(0.92);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 280ms ease,
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0ms linear 280ms;
+  }
+  .robot-guide-note.is-open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    transition:
+      opacity 240ms ease,
+      transform 360ms cubic-bezier(0.22, 1, 0.36, 1),
+      visibility 0ms;
+  }
+
+  .robot-guide-note-meta {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.15rem 0.25rem;
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+  .robot-guide-note-label {
+    margin-left: auto;
+    color: oklch(0.5 0.02 260);
+    letter-spacing: 0.12em;
+  }
+  .robot-guide-note-body {
+    margin: 0.45rem 0 0;
+    font-family: var(--font-display);
+    font-size: 0.8rem;
+    line-height: 1.35;
+    letter-spacing: -0.01em;
+    color: var(--foreground);
+  }
+  .robot-guide-note-stem {
+    position: absolute;
+    right: 1.55rem;
+    bottom: -7px;
+    width: 10px;
+    height: 10px;
+    background: oklch(1 0 0 / 0.9);
+    border-right: 1px solid oklch(0.22 0.04 260 / 0.1);
+    border-bottom: 1px solid oklch(0.22 0.04 260 / 0.1);
+    transform: rotate(45deg);
+  }
+
+  .robot-guide-lens.is-scanning {
+    animation: robot-guide-scan 1.8s ease-in-out infinite;
+  }
+  .robot-guide-beacon {
+    animation: robot-guide-blink 2.2s ease-in-out infinite;
+  }
+
+  @keyframes robot-guide-scan {
+    0%, 100% { opacity: 0.55; }
+    50% { opacity: 1; }
+  }
+  @keyframes robot-guide-blink {
+    0%, 100% { opacity: 0.45; }
+    50% { opacity: 1; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .robot-guide,
+    .robot-guide.is-entered,
+    .robot-guide-note,
+    .robot-guide-note.is-open {
+      transition: none;
+    }
+    .robot-guide-lens.is-scanning,
+    .robot-guide-beacon {
+      animation: none;
+    }
+  }
 }

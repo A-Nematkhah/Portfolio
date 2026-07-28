@@ -1,4 +1,12 @@
-import { useMemo, useState, type CSSProperties, type KeyboardEvent } from "react";
+import {
+  useMemo,
+  useState,
+  useRef,
+  useEffect,
+  type CSSProperties,
+  type KeyboardEvent,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { m } from "framer-motion";
 import {
   Box, Ruler, Activity, Radio, Globe, Bot, Code2, Brain, Sparkles,
@@ -8,20 +16,8 @@ import {
 } from "lucide-react";
 
 /**
- * ================= ENGINEERING TOOL WALL =================
- *
- * A reusable, data-driven "pegboard" that stands in for the conventional
- * skills grid. Every tool is a plain <button>, so keyboard + screen reader
- * support come for free; hover/selection state is tracked in React (not
- * CSS :hover) so the exact same code path drives desktop hover, keyboard
- * focus, and mobile tap.
- *
- * Project connections are NOT hardcoded. `ToolWall` is handed the same
- * project list the Projects section renders, and each tool declares
- * `matchKeywords` used to find real, existing projects that used it. If a
- * tool has no matching project yet, the panel says so honestly instead of
- * inventing one. Extending the wall later is just: add an object to
- * `TOOLS` with the right `matchKeywords` / `filterCategory`.
+ * Engineering Tool Wall — framed pegboard panel with original skill
+ * card sizing, draggable decorative tools, and full-width board layout.
  */
 
 export type ToolDomainId = "mechanical" | "robotics" | "ai";
@@ -33,7 +29,6 @@ export type ToolItem = {
   categoryTag: string;
   usedFor: string[];
   matchKeywords: string[];
-  /** One of the Projects section's FILTERS values, if this tool maps cleanly to one. */
   filterCategory?: string;
   status: "ACTIVE" | "RESEARCH" | "EXPERIMENTAL";
   icon: typeof Box;
@@ -42,70 +37,84 @@ export type ToolItem = {
 
 export type ProjectRef = { title: string; tool: string; cat: string };
 
-const DOMAINS: { id: ToolDomainId; label: string; sublabel: string; icon: typeof Box }[] = [
-  { id: "mechanical", label: "Mechanical Engineering", sublabel: "Design / Simulation / Analysis", icon: Boxes },
-  { id: "robotics", label: "Robotics & Systems", sublabel: "Robotics / Simulation / Control", icon: Cpu },
-  { id: "ai", label: "AI & Intelligent Systems", sublabel: "Programming / Learning / Autonomy", icon: BrainCircuit },
+const DOMAINS: { id: ToolDomainId; label: string; icon: typeof Box }[] = [
+  { id: "mechanical", label: "Mechanical Engineering", icon: Boxes },
+  { id: "robotics", label: "Robotics & Automation", icon: Cpu },
+  { id: "ai", label: "AI & Intelligent Systems", icon: BrainCircuit },
 ];
 
-/** Real photographed tool sitting in a gutter column between two card
- * columns (col 2 or col 4 of the 5-column card|gutter|card|gutter|card
- * grid), optionally spanning multiple card rows. */
 type GutterTool = {
+  id: string;
   src: string;
   alt: string;
   col: 2 | 4;
-  row: string; // CSS grid-row, e.g. "1 / 3" or "3"
+  row: string;
   width: number;
   rotate: number;
-  rot90?: boolean; // for tools photographed sideways (e.g. the caliper)
+  rot90?: boolean;
+  nudgeY?: number;
 };
 
-/** A single accent placed outside the card grid — either centered below
- * the whole section, or tucked into the board's outer margin. */
-type AccentTool = { src: string; alt: string; width: number; rotate: number };
+type AccentTool = { id: string; src: string; alt: string; width: number; rotate: number };
 
-/** Resolves a /public/tools/* image against the app's actual base path.
- * A hardcoded "/tools/x.webp" breaks on the GitHub Pages project-site
- * deployment, which is served under "/Portfolio/" (see vite.config.ts) —
- * BASE_URL is "/" locally and "/Portfolio/" there, so this works in both. */
 function toolAsset(file: string) {
   return `${import.meta.env.BASE_URL}tools/${file}`;
 }
 
 const GUTTERS: Record<ToolDomainId, GutterTool[]> = {
   mechanical: [
-    { src: toolAsset("caliper.webp"), alt: "Digital caliper", col: 2, row: "1 / 3", width: 230, rotate: 0, rot90: true },
-    { src: toolAsset("wrench.webp"), alt: "Wrench", col: 4, row: "1 / 3", width: 52, rotate: 3 },
-    { src: toolAsset("micrometer.webp"), alt: "Micrometer", col: 2, row: "3", width: 66, rotate: -18 },
-    { src: toolAsset("bearing.webp"), alt: "Ball bearing", col: 4, row: "3", width: 46, rotate: 10 },
+    { id: "micrometer", src: toolAsset("micrometer.webp"), alt: "Micrometer", col: 2, row: "1 / 3", width: 143, rotate: -12, nudgeY: -36 },
+    { id: "wrench", src: toolAsset("wrench.webp"), alt: "Wrench", col: 4, row: "1 / 3", width: 78, rotate: 3 },
+    { id: "caliper", src: toolAsset("caliper.webp"), alt: "Digital caliper", col: 2, row: "3", width: 240, rotate: 0, rot90: true },
+    { id: "bearing", src: toolAsset("bearing.webp"), alt: "Ball bearing", col: 4, row: "3", width: 69, rotate: 10 },
   ],
   robotics: [
-    { src: toolAsset("pcb-green.webp"), alt: "Microcontroller board", col: 2, row: "1 / 3", width: 58, rotate: -6 },
-    { src: toolAsset("board.webp"), alt: "Single-board computer", col: 4, row: "1 / 3", width: 56, rotate: 7 },
+    { id: "pcb", src: toolAsset("pcb-green.webp"), alt: "Microcontroller board", col: 2, row: "1 / 3", width: 87, rotate: -6 },
+    { id: "sbc", src: toolAsset("board.webp"), alt: "Single-board computer", col: 4, row: "1 / 3", width: 84, rotate: 7 },
   ],
   ai: [
-    { src: toolAsset("ultrasonic-sensor.webp"), alt: "Ultrasonic sensor", col: 2, row: "1", width: 54, rotate: -8 },
-    { src: toolAsset("ic-chip.webp"), alt: "AI accelerator chip", col: 4, row: "1", width: 44, rotate: 9 },
+    { id: "ultrasonic", src: toolAsset("ultrasonic-sensor.webp"), alt: "Ultrasonic sensor", col: 2, row: "1", width: 162, rotate: -8 },
+    { id: "chip", src: toolAsset("ic-chip.webp"), alt: "AI accelerator chip", col: 4, row: "1", width: 132, rotate: 9 },
   ],
 };
 
-/** Centered below the entire card grid of that domain. */
 const BELOW_ACCENT: Partial<Record<ToolDomainId, AccentTool>> = {
-  mechanical: { src: toolAsset("gear.webp"), alt: "Gear", width: 46, rotate: 8 },
+  mechanical: { id: "gear", src: toolAsset("gear.webp"), alt: "Gear", width: 69, rotate: 8 },
 };
 
-/** Tucked into the board's right margin, just past the last card column. */
 const MARGIN_ACCENT: Partial<Record<ToolDomainId, AccentTool>> = {
-  robotics: { src: toolAsset("relay.webp"), alt: "Relay module", width: 30, rotate: -10 },
+  robotics: { id: "relay", src: toolAsset("relay.webp"), alt: "Relay module", width: 90, rotate: -10 },
 };
+
+const PEG_OFFSET_KEY = "toolwall-peg-offsets-v1";
+type PegOffset = { x: number; y: number };
+
+function loadPegOffsets(): Record<string, PegOffset> {
+  try {
+    const raw = localStorage.getItem(PEG_OFFSET_KEY);
+    if (!raw) return {};
+    const parsed = JSON.parse(raw) as Record<string, PegOffset>;
+    return parsed && typeof parsed === "object" ? parsed : {};
+  } catch {
+    return {};
+  }
+}
+
+function savePegOffsets(pos: Record<string, PegOffset>) {
+  try {
+    localStorage.setItem(PEG_OFFSET_KEY, JSON.stringify(pos));
+  } catch {
+    /* ignore */
+  }
+}
 
 const EDGE_PINS: { top: string; left?: string; right?: string; color: "brass" | "silver" | "red" | "green" }[] = [
-  { top: "29%", right: "-5px", color: "brass" },
-  { top: "60%", right: "-5px", color: "silver" },
-  { top: "88%", left: "38%", color: "red" },
-  { top: "82%", right: "-5px", color: "green" },
+  { top: "22%", right: "20px", color: "brass" },
+  { top: "48%", right: "18px", color: "silver" },
+  { top: "72%", left: "20px", color: "red" },
+  { top: "86%", right: "22px", color: "green" },
 ];
+
 const EDGE_PIN_STYLE: Record<"brass" | "silver" | "red" | "green", string> = {
   brass: "bg-[radial-gradient(circle_at_35%_30%,#ffe6a3,#c99f3d)]",
   silver: "bg-[radial-gradient(circle_at_35%_30%,#f2f4f6,#8b9096)]",
@@ -113,8 +122,30 @@ const EDGE_PIN_STYLE: Record<"brass" | "silver" | "red" | "green", string> = {
   green: "bg-[radial-gradient(circle_at_35%_30%,#a8e6b0,#3f9950)]",
 };
 
-/** Column index (1, 3, or 5 of the 5-col card|gutter|card|gutter|card
- * grid) and row for the nth card in a domain, assuming 3 cards per row. */
+function HexScrew({ id, className }: { id: string; className?: string }) {
+  const gradId = `screwMetal-${id}`;
+  return (
+    <span aria-hidden className={`pegboard-screw ${className ?? ""}`}>
+      <svg viewBox="0 0 32 32" width="100%" height="100%">
+        <defs>
+          <radialGradient id={gradId} cx="35%" cy="30%" r="70%">
+            <stop offset="0%" stopColor="#f4f6f8" />
+            <stop offset="55%" stopColor="#b8c0c4" />
+            <stop offset="100%" stopColor="#6e757c" />
+          </radialGradient>
+        </defs>
+        <circle cx="16" cy="16" r="15" fill={`url(#${gradId})`} />
+        <circle cx="16" cy="16" r="14.2" fill="none" stroke="rgba(0,0,0,0.22)" strokeWidth="0.8" />
+        <circle cx="16" cy="16" r="9.2" fill="rgba(45,50,55,0.95)" />
+        <path
+          d="M16 8.8 L19.55 14.9 L16 13.6 L12.45 14.9 Z M16 23.2 L12.45 17.1 L16 18.4 L19.55 17.1 Z M8.8 16 L14.9 12.45 L13.6 16 L14.9 19.55 Z M23.2 16 L17.1 19.55 L18.4 16 L17.1 12.45 Z"
+          fill="#cfd5da"
+        />
+      </svg>
+    </span>
+  );
+}
+
 function cardPlacement(index: number) {
   const col = (index % 3) * 2 + 1;
   const row = Math.floor(index / 3) + 1;
@@ -122,7 +153,6 @@ function cardPlacement(index: number) {
 }
 
 const TOOLS: ToolItem[] = [
-  // ---- Mechanical Engineering ----
   {
     id: "solidworks", name: "SolidWorks", domain: "mechanical", categoryTag: "CAD / CAE",
     usedFor: ["Mechanical Design", "Assembly Modeling", "Motion Study"],
@@ -173,8 +203,6 @@ const TOOLS: ToolItem[] = [
     usedFor: ["FEA", "System-Level Simulation", "Results Validation"],
     matchKeywords: ["simulation", "analysis"], status: "ACTIVE", icon: Cog, tilt: 2,
   },
-
-  // ---- Robotics & Systems ----
   {
     id: "ros2", name: "ROS 2", domain: "robotics", categoryTag: "ROBOTICS MIDDLEWARE",
     usedFor: ["Node Communication", "Sensor Integration", "Robot Control"],
@@ -205,8 +233,6 @@ const TOOLS: ToolItem[] = [
     usedFor: ["Process Automation", "Sensor Fusion", "Autonomous Control"],
     matchKeywords: ["intelligent automation", "automation"], status: "RESEARCH", icon: Cog, tilt: 1,
   },
-
-  // ---- AI & Intelligent Systems ----
   {
     id: "python", name: "Python", domain: "ai", categoryTag: "PROGRAMMING",
     usedFor: ["Robotics Scripting", "Data & Visualization", "Automation"],
@@ -250,9 +276,20 @@ export function ToolWall({
 }) {
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [offsets, setOffsets] = useState<Record<string, PegOffset>>({});
+  const [draggingId, setDraggingId] = useState<string | null>(null);
+  const boardRef = useRef<HTMLDivElement>(null);
+  const reduceMotion = useRef(false);
+  const dragRef = useRef<{ id: string; startX: number; startY: number; origX: number; origY: number } | null>(null);
+  const offsetsRef = useRef(offsets);
+  offsetsRef.current = offsets;
+
+  useEffect(() => {
+    reduceMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setOffsets(loadPegOffsets());
+  }, []);
 
   const activeId = hoveredId ?? selectedId;
-  const activeTool = useMemo(() => TOOLS.find((t) => t.id === activeId) ?? null, [activeId]);
   const selectedTool = useMemo(() => TOOLS.find((t) => t.id === selectedId) ?? null, [selectedId]);
   const connectedProjects = useMemo(
     () => (selectedTool ? getConnectedProjects(selectedTool, projects) : []),
@@ -265,50 +302,150 @@ export function ToolWall({
     if (e.key === "Enter" || e.key === " ") toggleSelect(id);
   };
 
+  const handleBoardPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if (draggingId || reduceMotion.current || !boardRef.current) return;
+    const rect = boardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    boardRef.current.style.transform = `perspective(1200px) rotateY(${x * 2.2}deg) rotateX(${-y * 1.6}deg)`;
+  };
+
+  const resetBoardTilt = () => {
+    if (!boardRef.current || draggingId) return;
+    boardRef.current.style.transform = "perspective(1200px) rotateY(0deg) rotateX(0deg)";
+  };
+
+  const onPegPointerDown = (e: ReactPointerEvent<HTMLButtonElement>, id: string) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const cur = offsetsRef.current[id] ?? { x: 0, y: 0 };
+    dragRef.current = {
+      id,
+      startX: e.clientX,
+      startY: e.clientY,
+      origX: cur.x,
+      origY: cur.y,
+    };
+    setDraggingId(id);
+    e.currentTarget.setPointerCapture(e.pointerId);
+    if (boardRef.current) {
+      boardRef.current.style.transform = "perspective(1200px) rotateY(0deg) rotateX(0deg)";
+    }
+  };
+
+  const onPegPointerMove = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    const drag = dragRef.current;
+    if (!drag || drag.id !== draggingId) return;
+    e.preventDefault();
+    e.stopPropagation();
+    setOffsets((prev) => ({
+      ...prev,
+      [drag.id]: {
+        x: drag.origX + (e.clientX - drag.startX),
+        y: drag.origY + (e.clientY - drag.startY),
+      },
+    }));
+  };
+
+  const onPegPointerUp = (e: ReactPointerEvent<HTMLButtonElement>) => {
+    if (!dragRef.current) return;
+    e.stopPropagation();
+    dragRef.current = null;
+    setDraggingId(null);
+    try {
+      e.currentTarget.releasePointerCapture(e.pointerId);
+    } catch {
+      /* already released */
+    }
+    savePegOffsets(offsetsRef.current);
+  };
+
+  const resetPegLayout = () => {
+    setOffsets({});
+    savePegOffsets({});
+  };
+
+  const pegTransform = (
+    id: string,
+    rotate: number,
+    rot90?: boolean,
+    centered?: boolean,
+    nudgeY = 0,
+  ) => {
+    const o = offsets[id] ?? { x: 0, y: 0 };
+    const rot = rot90 ? -90 : rotate;
+    const y = o.y + nudgeY;
+    if (centered) {
+      return `translate(calc(-50% + ${o.x}px), calc(-50% + ${y}px)) rotate(${rot}deg)`;
+    }
+    return `translate(${o.x}px, ${y}px) rotate(${rot}deg)`;
+  };
+
   return (
-    <section id="skills" className="toolwall-grid-bg py-12 md:py-16">
-      <div data-lidar-object="TOOL WALL" className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Engineering Tool Wall / Skills</p>
-        <h2 className="mt-3 text-4xl font-bold md:text-5xl">My Engineering Toolkit.</h2>
-        <p className="mx-auto mt-3 max-w-2xl text-sm text-muted-foreground">
+    <section id="skills" className="toolwall-section py-14 md:py-20">
+      <div data-lidar-object="TOOL WALL" className="mx-auto max-w-3xl text-center">
+        <p className="text-[11px] font-semibold uppercase tracking-[0.28em]">
+          <span className="text-primary">Engineering Tool Wall</span>
+          <span className="text-muted-foreground"> / Skills</span>
+        </p>
+        <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground md:text-[2.75rem]">
+          My Engineering Toolkit.
+        </h2>
+        <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
           The tools I use to design mechanical systems, build robots, simulate complex environments,
           and develop intelligent autonomous systems.
         </p>
       </div>
 
-      {/* Pegboard panel. Texture lives on an absolute layer behind the content
-         so the rounded corners can clip it without ever clipping the hover
-         tooltips, which need to be able to escape the panel bounds. */}
-      <div className="relative mt-6 pegboard-depth">
-        <div className="pointer-events-none absolute inset-0 rounded-3xl pegboard-surface pegboard-frame" />
-        <span aria-hidden className="pegboard-rivet pegboard-rivet-tl" />
-        <span aria-hidden className="pegboard-rivet pegboard-rivet-tr" />
-        <span aria-hidden className="pegboard-rivet pegboard-rivet-bl" />
-        <span aria-hidden className="pegboard-rivet pegboard-rivet-br" />
+      <div
+        ref={boardRef}
+        className="pegboard-board relative mx-auto mt-10 w-full"
+        onPointerMove={handleBoardPointerMove}
+        onPointerLeave={resetBoardTilt}
+      >
+        <div className="pegboard-face" aria-hidden />
+        <HexScrew id="tl" className="pegboard-screw-tl" />
+        <HexScrew id="tr" className="pegboard-screw-tr" />
+        <HexScrew id="bl" className="pegboard-screw-bl" />
+        <HexScrew id="br" className="pegboard-screw-br" />
+
         {EDGE_PINS.map((p, i) => (
           <span
             key={i}
             aria-hidden
-            className={`pointer-events-none absolute z-[6] h-[11px] w-[11px] rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.5),inset_0_1px_1px_rgba(255,255,255,0.5)] ${EDGE_PIN_STYLE[p.color]}`}
+            className={`pointer-events-none absolute z-[6] h-[11px] w-[11px] rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.55)] ${EDGE_PIN_STYLE[p.color]}`}
             style={{ top: p.top, left: p.left, right: p.right }}
           />
         ))}
-        <div className="relative rounded-3xl p-4 sm:p-6 md:p-8">
-          <div className="space-y-6 md:space-y-8">
-            {DOMAINS.map((domain) => {
-              const DomainIcon = domain.icon;
-              const domainTools = TOOLS.filter((t) => t.domain === domain.id);
-              const below = BELOW_ACCENT[domain.id];
-              const margin = MARGIN_ACCENT[domain.id];
-              return (
+
+        <div className="pegboard-content relative px-6 py-10 sm:px-8 sm:py-12 md:px-12 md:py-14">
+          <div className="relative z-[4] mb-2 hidden justify-end sm:flex">
+            <button
+              type="button"
+              onClick={resetPegLayout}
+              className="rounded-md border border-black/10 bg-white/70 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#5c564e] backdrop-blur-sm transition hover:bg-white/90"
+            >
+              Reset tools
+            </button>
+          </div>
+
+          <div className="relative z-[2] space-y-8 md:space-y-10">
+          {DOMAINS.map((domain) => {
+            const DomainIcon = domain.icon;
+            const domainTools = TOOLS.filter((t) => t.domain === domain.id);
+            const below = BELOW_ACCENT[domain.id];
+            const margin = MARGIN_ACCENT[domain.id];
+            return (
               <div key={domain.id} className="relative">
                 <div className="flex items-center gap-2.5 pb-2">
                   <DomainIcon className="h-4 w-4 text-foreground" strokeWidth={1.9} />
-                  <h3 className="font-display text-[13px] font-bold uppercase tracking-[0.12em] text-foreground">{domain.label}</h3>
+                  <h3 className="font-display text-[13px] font-bold uppercase tracking-[0.12em] text-foreground">
+                    {domain.label}
+                  </h3>
                   <span className="ml-1.5 h-px flex-1 bg-foreground/20" aria-hidden />
                 </div>
 
-                <div className="relative mt-4 grid grid-cols-2 items-stretch gap-2.5 sm:grid-cols-[1fr_44px_1fr_44px_1fr] sm:gap-x-3 sm:gap-y-3">
+                <div className="relative mt-4 grid grid-cols-2 items-start gap-3 sm:grid-cols-[16.5rem_minmax(2.75rem,1fr)_16.5rem_minmax(2.75rem,1fr)_16.5rem] sm:justify-between sm:gap-x-8 sm:gap-y-5">
                   {domainTools.map((tool, i) => {
                     const isActive = activeId === tool.id;
                     const isSelected = selectedId === tool.id;
@@ -331,22 +468,28 @@ export function ToolWall({
                           onFocus={() => setHoveredId(tool.id)}
                           onBlur={() => setHoveredId(null)}
                           onKeyDown={(e) => handleKeyDown(e, tool.id)}
-                          className={`skill-card group relative flex w-full flex-col rounded-[14px] bg-card px-3 py-2.5 text-left outline-none ${isSelected ? "tool-plate-selected" : ""}`}
+                          className={`skill-card group relative flex w-full flex-col rounded-[14px] px-3 py-2.5 text-left outline-none ${isSelected ? "tool-plate-selected" : ""}`}
                           style={{
-                            transform: isActive ? "translateY(-4px) rotate(0deg)" : `rotate(${tool.tilt}deg)`,
+                            transform: isActive
+                              ? "translateY(-4px) rotate(0deg)"
+                              : `rotate(${tool.tilt}deg)`,
                           }}
                         >
-                          <span className={`absolute right-[11px] top-[10px] h-[7px] w-[7px] rounded-full ${STATUS_STYLE[tool.status]}`} aria-hidden />
+                          <span
+                            className={`absolute right-[11px] top-[10px] h-[7px] w-[7px] rounded-full ${STATUS_STYLE[tool.status]}`}
+                            aria-hidden
+                          />
                           <span className="flex items-start gap-2">
                             <Icon className="mt-0.5 h-[19px] w-[19px] shrink-0 text-foreground" strokeWidth={1.7} />
-                            <span className="font-display text-[13.5px] font-bold leading-tight text-foreground">{tool.name}</span>
+                            <span className="font-display text-[13.5px] font-bold leading-tight text-foreground">
+                              {tool.name}
+                            </span>
                           </span>
-                          <span className="ml-[27px] mt-1 text-[11px] leading-snug text-muted-foreground">{tool.categoryTag}</span>
+                          <span className="ml-[27px] mt-1 text-[11px] leading-snug text-muted-foreground">
+                            {tool.categoryTag}
+                          </span>
                         </button>
 
-                        {/* Hover inspection tooltip — desktop only; mobile relies on
-                           the always-in-flow inspection panel below the board so
-                           nothing can ever overflow the viewport. */}
                         {isActive && (
                           <div className="tool-tooltip pointer-events-none absolute bottom-full left-1/2 z-20 mb-4 hidden w-52 -translate-x-1/2 md:block">
                             <p className="font-mono text-[9px] tracking-[0.2em] text-primary/90">TOOL DETECTED</p>
@@ -355,7 +498,9 @@ export function ToolWall({
                             <p className="text-xs text-foreground/80">{tool.categoryTag}</p>
                             <p className="mt-2 font-mono text-[9px] tracking-[0.15em] text-muted-foreground">USED FOR</p>
                             <ul className="text-xs text-foreground/80">
-                              {tool.usedFor.map((u) => <li key={u}>{u}</li>)}
+                              {tool.usedFor.map((u) => (
+                                <li key={u}>{u}</li>
+                              ))}
                             </ul>
                             <div className="tool-tooltip-notch" aria-hidden />
                           </div>
@@ -364,99 +509,161 @@ export function ToolWall({
                     );
                   })}
 
-                  {/* Real photographed tools, slotted into the gutter columns
-                     between the card columns — purely decorative, not tied
-                     to any one skill card. */}
                   {GUTTERS[domain.id].map((g) => (
                     <div
-                      key={g.src}
-                      aria-hidden
-                      className="pointer-events-none relative z-[1] hidden items-center justify-center sm:flex"
+                      key={g.id}
+                      className="peg-gutter-slot relative z-[3] hidden min-w-0 self-stretch overflow-visible sm:block"
                       style={{ gridColumn: g.col, gridRow: g.row }}
                     >
-                      <img
-                        src={g.src}
-                        alt={g.alt}
-                        className="block max-w-none drop-shadow-[0_8px_10px_rgba(20,20,40,0.4)] drop-shadow-[0_2px_3px_rgba(20,20,40,0.3)]"
-                        style={{
-                          width: g.width,
-                          transform: g.rot90 ? "rotate(-90deg)" : `rotate(${g.rotate}deg)`,
-                        }}
-                      />
+                      <button
+                        type="button"
+                        aria-label={`Move ${g.alt}`}
+                        className={`peg-draggable-inline absolute left-1/2 top-1/2 ${draggingId === g.id ? "is-dragging" : ""}`}
+                        style={{ transform: pegTransform(g.id, g.rotate, g.rot90, true, g.nudgeY) }}
+                        onPointerDown={(e) => onPegPointerDown(e, g.id)}
+                        onPointerMove={onPegPointerMove}
+                        onPointerUp={onPegPointerUp}
+                        onPointerCancel={onPegPointerUp}
+                      >
+                        <img
+                          src={g.src}
+                          alt=""
+                          draggable={false}
+                          className="select-none drop-shadow-[0_8px_10px_rgba(20,20,40,0.4)]"
+                          style={{ width: g.width }}
+                        />
+                      </button>
                     </div>
                   ))}
                 </div>
 
                 {below && (
-                  <div aria-hidden className="pointer-events-none relative z-[1] mt-3 hidden justify-center sm:flex">
-                    <img src={below.src} alt={below.alt} style={{ width: below.width, transform: `rotate(${below.rotate}deg)` }} className="block max-w-none drop-shadow-[0_8px_10px_rgba(20,20,40,0.4)]" />
+                  <div className="absolute bottom-0 left-1/2 z-[3] hidden -translate-x-1/2 overflow-visible sm:block">
+                    <button
+                      type="button"
+                      aria-label={`Move ${below.alt}`}
+                      className={`peg-draggable-inline ${draggingId === below.id ? "is-dragging" : ""}`}
+                      onPointerDown={(e) => onPegPointerDown(e, below.id)}
+                      onPointerMove={onPegPointerMove}
+                      onPointerUp={onPegPointerUp}
+                      onPointerCancel={onPegPointerUp}
+                    >
+                      <img
+                        src={below.src}
+                        alt=""
+                        draggable={false}
+                        className="select-none drop-shadow-[0_8px_10px_rgba(20,20,40,0.4)]"
+                        style={{
+                          width: below.width,
+                          transform: pegTransform(below.id, below.rotate),
+                        }}
+                      />
+                    </button>
                   </div>
                 )}
                 {margin && (
-                  <div aria-hidden className="pointer-events-none absolute right-[-30px] top-1 z-[1] hidden sm:block" style={{ width: margin.width }}>
-                    <img src={margin.src} alt={margin.alt} style={{ transform: `rotate(${margin.rotate}deg)` }} className="block w-full max-w-none drop-shadow-[0_6px_8px_rgba(20,20,40,0.4)]" />
+                  <div className="absolute right-[-30px] top-1 z-[3] hidden overflow-visible sm:block">
+                    <button
+                      type="button"
+                      aria-label={`Move ${margin.alt}`}
+                      className={`peg-draggable-inline ${draggingId === margin.id ? "is-dragging" : ""}`}
+                      onPointerDown={(e) => onPegPointerDown(e, margin.id)}
+                      onPointerMove={onPegPointerMove}
+                      onPointerUp={onPegPointerUp}
+                      onPointerCancel={onPegPointerUp}
+                    >
+                      <img
+                        src={margin.src}
+                        alt=""
+                        draggable={false}
+                        className="select-none drop-shadow-[0_6px_8px_rgba(20,20,40,0.4)]"
+                        style={{
+                          width: margin.width,
+                          transform: pegTransform(margin.id, margin.rotate),
+                        }}
+                      />
+                    </button>
                   </div>
                 )}
               </div>
-              );
-            })}
-          </div>
+            );
+          })}
+        </div>
 
-          {/* Inspection panel — pinned detail for the selected tool. Only
-             rendered once something is actually selected. */}
-          {selectedTool && (
-            <div className="mt-12 rounded-xl border border-border bg-secondary/40 p-5">
-              <m.div key={selectedTool.id} initial={{ opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-                <div className="flex items-start justify-between gap-4">
-                  <div>
-                    <p className="font-mono text-[10px] tracking-[0.25em] text-primary/90">TOOL DETECTED</p>
-                    <h4 className="mt-1 font-display text-lg font-semibold text-foreground">{selectedTool.name}</h4>
-                    <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">{selectedTool.categoryTag}</p>
-                  </div>
-                  <button
-                    type="button"
-                    onClick={() => setSelectedId(null)}
-                    aria-label="Close inspection panel"
-                    className="rounded-md p-1.5 text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
-                  >
-                    <X className="h-4 w-4" />
-                  </button>
+        {selectedTool && (
+          <div className="relative z-[2] mt-12 rounded-xl border border-black/10 bg-[#fffdf8]/92 p-5 shadow-[0_12px_28px_-16px_rgba(20,20,40,0.35)]">
+            <m.div
+              key={selectedTool.id}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.25 }}
+            >
+              <div className="flex items-start justify-between gap-4">
+                <div>
+                  <p className="font-mono text-[10px] tracking-[0.25em] text-primary/90">TOOL DETECTED</p>
+                  <h4 className="mt-1 font-display text-lg font-semibold text-foreground">{selectedTool.name}</h4>
+                  <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+                    {selectedTool.categoryTag}
+                  </p>
                 </div>
+                <button
+                  type="button"
+                  onClick={() => setSelectedId(null)}
+                  aria-label="Close inspection panel"
+                  className="rounded-md p-1.5 text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
 
-                <div className="mt-4 grid gap-6 sm:grid-cols-2">
-                  <div>
-                    <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">USED FOR</p>
+              <div className="mt-4 grid gap-6 sm:grid-cols-2">
+                <div>
+                  <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">USED FOR</p>
+                  <ul className="mt-2 space-y-1 text-sm text-foreground/80">
+                    {selectedTool.usedFor.map((u) => (
+                      <li key={u} className="flex items-center gap-2">
+                        <CircleDot className="h-3 w-3 text-primary/80" />
+                        {u}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+                <div>
+                  <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
+                    CONNECTED PROJECTS{" "}
+                    <span className="text-foreground/70">
+                      {String(connectedProjects.length).padStart(2, "0")}
+                    </span>
+                  </p>
+                  {connectedProjects.length > 0 ? (
                     <ul className="mt-2 space-y-1 text-sm text-foreground/80">
-                      {selectedTool.usedFor.map((u) => (
-                        <li key={u} className="flex items-center gap-2"><CircleDot className="h-3 w-3 text-primary/80" />{u}</li>
+                      {connectedProjects.map((p) => (
+                        <li key={p.title}>{p.title}</li>
                       ))}
                     </ul>
-                  </div>
-                  <div>
-                    <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-                      CONNECTED PROJECTS <span className="text-foreground/70">{String(connectedProjects.length).padStart(2, "0")}</span>
+                  ) : (
+                    <p className="mt-2 text-sm text-muted-foreground">
+                      No linked projects yet — check back soon.
                     </p>
-                    {connectedProjects.length > 0 ? (
-                      <ul className="mt-2 space-y-1 text-sm text-foreground/80">
-                        {connectedProjects.map((p) => <li key={p.title}>{p.title}</li>)}
-                      </ul>
-                    ) : (
-                      <p className="mt-2 text-sm text-muted-foreground">No linked projects yet — check back soon.</p>
-                    )}
-                    {selectedTool.filterCategory && (
-                      <button
-                        type="button"
-                        onClick={() => onExploreProjects(selectedTool.filterCategory!)}
-                        className="mt-3 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/25"
-                      >
-                        Explore related projects <ArrowUpRight className="h-3.5 w-3.5" />
-                      </button>
-                    )}
-                  </div>
+                  )}
+                  {selectedTool.filterCategory && (
+                    <button
+                      type="button"
+                      onClick={() => onExploreProjects(selectedTool.filterCategory!)}
+                      className="mt-3 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/25"
+                    >
+                      Explore related projects <ArrowUpRight className="h-3.5 w-3.5" />
+                    </button>
+                  )}
                 </div>
-              </m.div>
-            </div>
-          )}
+              </div>
+            </m.div>
+          </div>
+        )}
+
+          <div className="pegboard-quote relative z-[2]">
+            <p>Precision in tools, and in ideas, builds impact in engineering.</p>
+          </div>
         </div>
       </div>
     </section>

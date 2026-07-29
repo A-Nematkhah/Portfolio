@@ -1,15 +1,52 @@
-import { useState } from "react";
-import { Download, Menu, X } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Download, Menu, Moon, Sun, X } from "lucide-react";
 import { NAV } from "@/data/content";
 import { pub } from "@/lib/pub";
+import { useTheme } from "@/components/theme/ThemeProvider";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const [active, setActive] = useState(NAV[0]?.toLowerCase() ?? "home");
+  const { theme, toggleTheme } = useTheme();
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
+  useEffect(() => {
+    const ids = NAV.map((n) => n.toLowerCase());
+    const sections = ids
+      .map((id) => document.getElementById(id))
+      .filter((el): el is HTMLElement => !!el);
+
+    if (sections.length === 0) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries
+          .filter((e) => e.isIntersecting)
+          .sort((a, b) => b.intersectionRatio - a.intersectionRatio);
+        if (visible[0]?.target?.id) setActive(visible[0].target.id);
+      },
+      { rootMargin: "-35% 0px -50% 0px", threshold: [0.1, 0.35, 0.6] },
+    );
+
+    sections.forEach((s) => observer.observe(s));
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <header id="top" className="fixed inset-x-0 top-0 z-40">
       <div className="mx-auto mt-4 max-w-7xl px-6">
-        <div className="flex h-16 items-center justify-between rounded-xl glass px-5">
+        <div
+          className={`nav-shell flex items-center justify-between rounded-xl glass px-5 ${
+            scrolled ? "is-scrolled h-14" : "h-16"
+          }`}
+        >
           <a href="#top" className="flex items-center gap-2" onClick={() => setOpen(false)}>
             <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/15 text-primary font-bold">
               <span className="font-display">AN</span>
@@ -17,23 +54,36 @@ export function Nav() {
           </a>
 
           <nav className="hidden items-center gap-8 md:flex">
-            {NAV.map((n, i) => (
-              <a
-                key={n}
-                href={`#${n.toLowerCase()}`}
-                className={`relative text-sm transition-colors ${i === 0 ? "text-primary" : "text-muted-foreground hover:text-foreground"}`}
-              >
-                {n}
-                {i === 0 && <span className="absolute -bottom-1 left-0 h-px w-full bg-primary" />}
-              </a>
-            ))}
+            {NAV.map((n) => {
+              const id = n.toLowerCase();
+              const isActive = active === id;
+              return (
+                <a
+                  key={n}
+                  href={`#${id}`}
+                  className={`nav-link text-sm ${
+                    isActive ? "is-active" : "text-muted-foreground hover:text-foreground"
+                  }`}
+                >
+                  {n}
+                </a>
+              );
+            })}
           </nav>
 
           <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              className="grid h-10 w-10 place-items-center rounded-lg border border-border bg-secondary/30 text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
+              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+            >
+              {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+            </button>
             <a
               href={pub("/cv.pdf")}
               download="Amirhossein-Nematkhah-CV.pdf"
-              className="hidden sm:inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/40 px-4 py-2 text-sm font-medium hover:border-primary/50 transition-colors"
+              className="btn-secondary hidden !px-4 !py-2 sm:inline-flex"
             >
               Download CV <Download className="h-4 w-4" />
             </a>
@@ -51,21 +101,28 @@ export function Nav() {
 
         {open && (
           <nav className="mt-2 flex flex-col gap-1 rounded-xl glass p-3 md:hidden">
-            {NAV.map((n) => (
-              <a
-                key={n}
-                href={`#${n.toLowerCase()}`}
-                onClick={() => setOpen(false)}
-                className="rounded-lg px-3 py-2.5 text-sm text-muted-foreground hover:bg-secondary/50 hover:text-foreground transition-colors"
-              >
-                {n}
-              </a>
-            ))}
+            {NAV.map((n) => {
+              const id = n.toLowerCase();
+              return (
+                <a
+                  key={n}
+                  href={`#${id}`}
+                  onClick={() => setOpen(false)}
+                  className={`rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                    active === id
+                      ? "bg-primary/10 text-primary"
+                      : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                  }`}
+                >
+                  {n}
+                </a>
+              );
+            })}
             <a
               href={pub("/cv.pdf")}
               download="Amirhossein-Nematkhah-CV.pdf"
               onClick={() => setOpen(false)}
-              className="mt-1 inline-flex items-center justify-center gap-2 rounded-lg border border-border bg-secondary/40 px-3 py-2.5 text-sm font-medium"
+              className="btn-secondary mt-1 inline-flex justify-center !px-3 !py-2.5"
             >
               Download CV <Download className="h-4 w-4" />
             </a>

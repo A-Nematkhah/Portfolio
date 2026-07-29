@@ -423,7 +423,8 @@ export function ToolWall({
             <button
               type="button"
               onClick={resetPegLayout}
-              className="rounded-md border border-black/10 bg-white/70 px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] text-[#5c564e] backdrop-blur-sm transition hover:bg-white/90"
+              className="rounded-md border border-[color:var(--panel-border)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] backdrop-blur-sm transition hover:border-primary/30"
+              style={{ background: "var(--reset-btn-bg)", color: "var(--reset-btn-text)" }}
             >
               Reset tools
             </button>
@@ -481,7 +482,7 @@ export function ToolWall({
                             aria-hidden
                           />
                           <span className="flex items-start gap-2">
-                            <Icon className="mt-0.5 h-[19px] w-[19px] shrink-0 text-foreground" strokeWidth={1.7} />
+                            <Icon className="skill-card-icon mt-0.5 h-[19px] w-[19px] shrink-0 text-foreground" strokeWidth={1.7} />
                             <span className="font-display text-[13.5px] font-bold leading-tight text-foreground">
                               {tool.name}
                             </span>
@@ -589,7 +590,10 @@ export function ToolWall({
                 </div>
 
                 {selectedTool?.domain === domain.id && (
-                  <div className="relative z-[2] mt-6 rounded-xl border border-black/10 bg-[#fffdf8]/92 p-5 shadow-[0_12px_28px_-16px_rgba(20,20,40,0.35)]">
+                  <div
+                    className="relative z-[2] mt-6 rounded-xl border p-5 shadow-[var(--shadow-elevated)]"
+                    style={{ background: "var(--panel-bg)", borderColor: "var(--panel-border)" }}
+                  >
                     <m.div
                       key={selectedTool.id}
                       initial={{ opacity: 0, y: 6 }}
@@ -608,7 +612,7 @@ export function ToolWall({
                           type="button"
                           onClick={() => setSelectedId(null)}
                           aria-label="Close inspection panel"
-                          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-black/5 hover:text-foreground"
+                          className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary/60 hover:text-foreground"
                         >
                           <X className="h-4 w-4" />
                         </button>

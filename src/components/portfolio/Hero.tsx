@@ -25,16 +25,10 @@ export function Hero() {
           AI &amp; Automation • Simulation &amp; Control
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <a
-            href="#projects"
-            className="inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground glow-primary hover:opacity-90 transition"
-          >
+          <a href="#projects" className="btn-primary">
             View My Work <ArrowRight className="h-4 w-4" />
           </a>
-          <a
-            href="#contact"
-            className="inline-flex items-center gap-2 rounded-lg border border-border bg-secondary/40 px-5 py-3 text-sm font-medium hover:border-primary/50 transition-colors"
-          >
+          <a href="#contact" className="btn-secondary">
             Contact Me <Send className="h-4 w-4" />
           </a>
         </div>
@@ -49,7 +43,7 @@ export function Hero() {
               href={href}
               target="_blank"
               rel="noreferrer"
-              className="grid h-10 w-10 place-items-center rounded-full glass text-foreground hover:text-primary hover:glow-primary transition"
+              className="icon-chip grid h-10 w-10 place-items-center rounded-full glass text-foreground hover:text-primary"
             >
               <Icon className="h-4 w-4" />
             </a>
@@ -63,6 +57,8 @@ export function Hero() {
         transition={{ duration: 1 }}
         className="relative"
       >
+        <div className="hero-spotlight" aria-hidden="true" />
+        <div className="hero-vignette" aria-hidden="true" />
         <m.img
           src={heroMachine}
           alt="Mechatronics 3D engine wireframe"
@@ -70,7 +66,7 @@ export function Hero() {
           height={1024}
           fetchPriority="high"
           decoding="async"
-          className="relative z-10 mx-auto w-full max-w-xl drop-shadow-[0_20px_60px_rgba(255,70,70,0.35)]"
+          className="relative z-10 mx-auto w-full max-w-xl drop-shadow-[0_24px_50px_rgba(0,0,0,0.45)] dark:drop-shadow-[0_28px_60px_rgba(0,0,0,0.65)]"
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 6, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -82,7 +78,7 @@ export function Hero() {
           ].map((s) => (
             <div
               key={s.l}
-              className="flex items-center gap-3 rounded-xl border border-border bg-secondary/30 p-4"
+              className="surface-card flex items-center gap-3 rounded-xl p-4"
             >
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
                 <s.icon className="h-5 w-5" />

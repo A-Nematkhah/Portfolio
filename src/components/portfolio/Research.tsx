@@ -13,13 +13,13 @@ export function Research() {
           <m.div
             key={r.t}
             data-lidar-object={r.t}
-            initial={{ opacity: 0, y: 16 }}
-            whileInView={{ opacity: 1, y: 0 }}
+            initial={{ opacity: 0, y: 16, filter: "blur(4px)" }}
+            whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.05 }}
-            className="rounded-xl glass p-6 hover:border-primary/50 transition"
+            className="surface-card rounded-xl p-6"
           >
-            <r.icon className="h-6 w-6 text-primary" />
+            <r.icon className="icon-chip h-6 w-6 text-primary" />
             <h3 className="mt-4 font-semibold">{r.t}</h3>
             <p className="mt-1 text-xs text-muted-foreground">{r.d}</p>
           </m.div>

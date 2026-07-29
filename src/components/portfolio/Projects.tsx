@@ -210,12 +210,12 @@ const ProjectCard = memo(function ProjectCard({
         handleLeave();
         handleCardMouseLeave();
       }}
-      initial={{ opacity: 0, y: 20 }}
-      whileInView={{ opacity: 1, y: 0 }}
+      initial={{ opacity: 0, y: 20, filter: "blur(3px)" }}
+      whileInView={{ opacity: 1, y: 0, filter: "blur(0px)" }}
       viewport={{ once: true, margin: "100px" }}
       transition={{ delay: Math.min(i, 5) * 0.05 }}
       style={{ rotateX: springRotateX, rotateY: springRotateY, transformPerspective: 800 }}
-      className="group relative overflow-hidden rounded-xl glass text-left"
+      className="project-card group relative overflow-hidden rounded-xl glass text-left"
     >
       <m.div
         aria-hidden="true"
@@ -332,7 +332,7 @@ const ProjectCard = memo(function ProjectCard({
           <p className="text-xs font-medium text-primary">{p.tag}</p>
           <div className="flex items-center justify-between gap-2">
             <h3 className="text-sm font-semibold leading-tight">{p.title}</h3>
-            <div className="grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/15 text-primary group-hover:bg-primary group-hover:text-primary-foreground transition">
+            <div className="project-arrow grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/15 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
               <ArrowRight className="h-3 w-3" />
             </div>
           </div>

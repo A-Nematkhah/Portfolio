@@ -77,11 +77,16 @@ export function PortfolioPage() {
 
   return (
     <LazyMotion features={domAnimation} strict>
-      <div className="relative min-h-screen overflow-x-hidden bg-background text-foreground">
+      <div className="workspace-noise relative min-h-screen overflow-x-hidden bg-transparent text-foreground">
         <BlueprintBackground />
         <div
-          className="pointer-events-none fixed -top-40 right-0 h-[500px] w-[500px] rounded-full bg-primary/10 blur-[100px] will-change-transform"
+          className="pointer-events-none fixed -top-40 right-0 h-[500px] w-[500px] rounded-full bg-primary/[0.07] blur-[100px] will-change-transform dark:bg-primary/[0.05]"
           style={{ transform: "translateZ(0)" }}
+        />
+        <div
+          className="pointer-events-none fixed -bottom-32 -left-20 h-[420px] w-[420px] rounded-full blur-[110px] will-change-transform"
+          style={{ transform: "translateZ(0)", background: "var(--ambient-b)" }}
+          aria-hidden
         />
 
         <Nav />

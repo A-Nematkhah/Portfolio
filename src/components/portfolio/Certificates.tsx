@@ -30,7 +30,7 @@ export function Certificates() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ delay: i * 0.08 }}
-            className="group relative block w-full overflow-hidden rounded-xl glass p-3 text-left hover:glow-primary transition"
+            className="group relative block w-full overflow-hidden rounded-xl surface-card p-3 text-left hover:glow-primary"
           >
             <div className="overflow-hidden rounded-lg bg-muted">
               <img
@@ -125,7 +125,7 @@ function CertificateModal({
             href={certificate.verifyUrl}
             target="_blank"
             rel="noreferrer"
-            className="mt-6 inline-flex items-center gap-2 rounded-lg bg-primary px-5 py-3 text-sm font-medium text-primary-foreground glow-primary hover:opacity-90 transition"
+            className="btn-primary mt-6"
           >
             <ExternalLink className="h-4 w-4" /> Verify Certificate
           </a>

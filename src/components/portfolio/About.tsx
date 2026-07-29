@@ -23,7 +23,7 @@ export function About() {
               d: "Amirkabir University of Technology — Ongoing",
             },
           ].map((e) => (
-            <div key={e.t} className="flex gap-4 rounded-xl glass p-5">
+            <div key={e.t} className="surface-card flex gap-4 rounded-xl p-5">
               <div className="grid h-11 w-11 place-items-center rounded-lg bg-primary/15 text-primary">
                 <e.icon className="h-5 w-5" />
               </div>

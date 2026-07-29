@@ -32,7 +32,7 @@ export function Contact() {
             href={i.href}
             target={i.href.startsWith("http") ? "_blank" : undefined}
             rel={i.href.startsWith("http") ? "noreferrer" : undefined}
-            className="group rounded-xl glass p-6 hover:border-primary/50 hover:glow-primary transition"
+            className="group surface-card rounded-xl p-6 hover:glow-primary"
           >
             <i.icon className="h-5 w-5 text-primary" />
             <p className="mt-4 text-xs text-muted-foreground">{i.t}</p>

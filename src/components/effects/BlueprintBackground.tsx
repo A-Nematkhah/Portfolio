@@ -1,9 +1,5 @@
 import { useEffect, useRef } from "react";
 
-// Line color follows the site's --foreground (deep navy). Update this if the
-// theme's foreground color changes.
-const LINE_RGB = "35,40,66";
-
 const MINOR_SPACING = 20;
 const MAJOR_EVERY = 5;
 const SEGMENT = 10;
@@ -19,9 +15,17 @@ function getTier(width: number): Tier {
   return "mobile";
 }
 
+function readLineRgb(): string {
+  const raw = getComputedStyle(document.documentElement)
+    .getPropertyValue("--blueprint-line-rgb")
+    .trim();
+  return raw || "167, 176, 188";
+}
+
 export function BlueprintBackground() {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const svgRef = useRef<SVGSVGElement | null>(null);
+  const lineRgbRef = useRef("167, 176, 188");
 
   useEffect(() => {
     const canvas = canvasRef.current;
@@ -35,10 +39,17 @@ export function BlueprintBackground() {
     let W = window.innerWidth;
     let H = window.innerHeight;
     let tier = getTier(W);
+    lineRgbRef.current = readLineRgb();
 
     const mouse = { x: -9999, y: -9999 };
     const eased = { x: -9999, y: -9999 };
     let rafId = 0;
+
+    function syncThemeColors() {
+      lineRgbRef.current = readLineRgb();
+      paintSvg();
+      if (reduceMotion) draw();
+    }
 
     function sizeCanvas() {
       W = window.innerWidth;
@@ -50,6 +61,7 @@ export function BlueprintBackground() {
       canvas!.style.height = `${H}px`;
       ctx!.setTransform(dpr, 0, 0, dpr, 0, 0);
       updateSvgVisibility();
+      paintSvg();
     }
 
     function updateSvgVisibility() {
@@ -62,9 +74,6 @@ export function BlueprintBackground() {
         el.style.display = show ? "" : "none";
       });
 
-      // Positions are computed in JS (not CSS %/calc) because SVG presentation
-      // attributes don't support calc(), and percentage/CSS-transform behavior
-      // on bare SVG elements is inconsistent across browsers.
       const set = (id: string, attrs: Record<string, number | string>) => {
         const el = svg.querySelector(`#${id}`);
         if (!el) return;
@@ -85,6 +94,20 @@ export function BlueprintBackground() {
       ["l1", "l2", "l3", "l4", "l5", "l6"].forEach((id, i) => set(id, { x: labelXs[i], y: H * 0.49 }));
     }
 
+    function paintSvg() {
+      const svg = svgRef.current;
+      if (!svg) return;
+      const rgb = lineRgbRef.current;
+      svg.querySelectorAll<SVGElement>("[data-bp-stroke]").forEach((el) => {
+        const a = el.dataset.bpStroke || "0.13";
+        el.setAttribute("stroke", `rgba(${rgb},${a})`);
+      });
+      svg.querySelectorAll<SVGElement>("[data-bp-fill]").forEach((el) => {
+        const a = el.dataset.bpFill || "0.22";
+        el.setAttribute("fill", `rgba(${rgb},${a})`);
+      });
+    }
+
     function falloff(d: number) {
       if (d >= DEFORM_RADIUS) return 0;
       const t = 1 - d / DEFORM_RADIUS;
@@ -92,11 +115,12 @@ export function BlueprintBackground() {
     }
 
     function drawLineSet(positions: number[], isVertical: boolean) {
+      const rgb = lineRgbRef.current;
       for (let i = 0; i < positions.length; i++) {
         const pos = positions[i];
         const isMajor = i % MAJOR_EVERY === 0;
         ctx!.beginPath();
-        ctx!.strokeStyle = `rgba(${LINE_RGB},${isMajor ? 0.09 : 0.05})`;
+        ctx!.strokeStyle = `rgba(${rgb},${isMajor ? 0.09 : 0.045})`;
         ctx!.lineWidth = 1;
         const len = isVertical ? H : W;
         for (let p = 0; p <= len; p += SEGMENT) {
@@ -139,6 +163,9 @@ export function BlueprintBackground() {
     draw();
     window.addEventListener("resize", sizeCanvas);
 
+    const mo = new MutationObserver(syncThemeColors);
+    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
+
     if (!reduceMotion) {
       const onMove = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
       const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
@@ -149,22 +176,26 @@ export function BlueprintBackground() {
         window.removeEventListener("resize", sizeCanvas);
         window.removeEventListener("mousemove", onMove);
         window.removeEventListener("mouseleave", onLeave);
+        mo.disconnect();
         cancelAnimationFrame(rafId);
       };
     }
 
-    return () => window.removeEventListener("resize", sizeCanvas);
+    return () => {
+      window.removeEventListener("resize", sizeCanvas);
+      mo.disconnect();
+    };
   }, []);
 
   return (
     <div className="pointer-events-none fixed inset-0 z-0" aria-hidden="true">
-      <canvas ref={canvasRef} className="absolute inset-0" />
+      <canvas ref={canvasRef} className="absolute inset-0 opacity-[0.85] dark:opacity-100" />
       <svg
         ref={svgRef}
-        className="absolute inset-0 h-full w-full"
+        className="absolute inset-0 h-full w-full opacity-90"
         style={{ overflow: "visible" }}
       >
-        <g data-tier="tablet-up" fill={`rgba(${LINE_RGB},0.22)`} fontSize="10" fontFamily="monospace">
+        <g data-tier="tablet-up" data-bp-fill="0.22" fill="rgba(167,176,188,0.22)" fontSize="10" fontFamily="monospace">
           <text id="l1">-300</text>
           <text id="l2">-200</text>
           <text id="l3">-100</text>
@@ -172,25 +203,25 @@ export function BlueprintBackground() {
           <text id="l5">200</text>
           <text id="l6">300</text>
         </g>
-        <g id="bp-origin" data-tier="desktop" stroke={`rgba(${LINE_RGB},0.30)`} strokeWidth={1} fill="none">
+        <g id="bp-origin" data-tier="desktop" data-bp-stroke="0.30" stroke="rgba(167,176,188,0.30)" strokeWidth={1} fill="none">
           <line x1="0" y1="0" x2="34" y2="0" markerEnd="url(#bp-live-arrow)" />
           <line x1="0" y1="0" x2="0" y2="-34" markerEnd="url(#bp-live-arrow)" />
           <line x1="0" y1="0" x2="-20" y2="18" markerEnd="url(#bp-live-arrow)" />
-          <circle cx="0" cy="0" r="2.5" fill={`rgba(${LINE_RGB},0.30)`} stroke="none" />
-          <text x="40" y="4" fontSize="10" fontFamily="monospace" fill={`rgba(${LINE_RGB},0.28)`} stroke="none">X</text>
-          <text x="-6" y="-40" fontSize="10" fontFamily="monospace" fill={`rgba(${LINE_RGB},0.28)`} stroke="none">Y</text>
-          <text x="-32" y="26" fontSize="10" fontFamily="monospace" fill={`rgba(${LINE_RGB},0.28)`} stroke="none">Z</text>
+          <circle cx="0" cy="0" r="2.5" data-bp-fill="0.30" fill="rgba(167,176,188,0.30)" stroke="none" />
+          <text x="40" y="4" fontSize="10" fontFamily="monospace" data-bp-fill="0.28" fill="rgba(167,176,188,0.28)" stroke="none">X</text>
+          <text x="-6" y="-40" fontSize="10" fontFamily="monospace" data-bp-fill="0.28" fill="rgba(167,176,188,0.28)" stroke="none">Y</text>
+          <text x="-32" y="26" fontSize="10" fontFamily="monospace" data-bp-fill="0.28" fill="rgba(167,176,188,0.28)" stroke="none">Z</text>
         </g>
         <defs>
           <marker id="bp-live-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
-            <path d="M0,0 L6,3 L0,6 Z" fill={`rgba(${LINE_RGB},0.30)`} />
+            <path d="M0,0 L6,3 L0,6 Z" data-bp-fill="0.30" fill="rgba(167,176,188,0.30)" />
           </marker>
         </defs>
         <g data-tier="desktop">
-          <circle id="bp-circle-outer" r="72" fill="none" stroke={`rgba(${LINE_RGB},0.13)`} strokeWidth={1} strokeDasharray="3 4" />
-          <circle id="bp-circle-inner" r="30" fill="none" stroke={`rgba(${LINE_RGB},0.13)`} strokeWidth={1} />
-          <circle id="bp-circle-small" r="48" fill="none" stroke={`rgba(${LINE_RGB},0.11)`} strokeWidth={1} />
-          <g stroke={`rgba(${LINE_RGB},0.20)`} strokeWidth={1}>
+          <circle id="bp-circle-outer" r="72" fill="none" data-bp-stroke="0.13" stroke="rgba(167,176,188,0.13)" strokeWidth={1} strokeDasharray="3 4" />
+          <circle id="bp-circle-inner" r="30" fill="none" data-bp-stroke="0.13" stroke="rgba(167,176,188,0.13)" strokeWidth={1} />
+          <circle id="bp-circle-small" r="48" fill="none" data-bp-stroke="0.11" stroke="rgba(167,176,188,0.11)" strokeWidth={1} />
+          <g data-bp-stroke="0.20" stroke="rgba(167,176,188,0.20)" strokeWidth={1}>
             <line id="bp-tick1" />
             <line id="bp-tick2" />
             <circle id="bp-tick-circle" r="6" fill="none" />

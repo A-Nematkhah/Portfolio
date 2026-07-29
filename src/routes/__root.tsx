@@ -9,8 +9,11 @@ import {
 } from "@tanstack/react-router";
 import { Toaster } from "@/components/ui/sonner";
 import { LidarCursor } from "@/components/effects/LidarCursor";
+import { ThemeProvider } from "@/components/theme/ThemeProvider";
 
 import appCss from "../styles.css?url";
+
+const themeInitScript = `(function(){try{var k='portfolio-theme';var t=localStorage.getItem(k);var d=t==='light'?false:t==='dark'?true:true;var r=document.documentElement;r.classList.toggle('dark',d);r.dataset.theme=d?'dark':'light';r.style.colorScheme=d?'dark':'light';}catch(e){document.documentElement.classList.add('dark');document.documentElement.dataset.theme='dark';}})();`;
 
 function NotFoundComponent() {
   return (
@@ -117,11 +120,12 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
 
 function RootShell({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
       </head>
-      <body>
+      <body className="workspace-atmosphere">
         {children}
         <Scripts />
       </body>
@@ -134,9 +138,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <Outlet />
-      <Toaster position="top-right" />
-      <LidarCursor />
+      <ThemeProvider>
+        <Outlet />
+        <Toaster position="top-right" />
+        <LidarCursor />
+      </ThemeProvider>
     </QueryClientProvider>
   );
 }

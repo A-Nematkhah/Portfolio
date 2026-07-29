@@ -551,4 +551,333 @@
       animation: none;
     }
   }
+
+  /* ===== Industrial Timeline road ===== */
+  .industrial-road {
+    position: relative;
+    min-height: 36rem;
+  }
+  .industrial-road-svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .ir-road-ground {
+    stroke: oklch(0.22 0.04 260 / 0.03);
+  }
+  .ir-road-shoulder {
+    stroke: oklch(0.22 0.04 260 / 0.05);
+  }
+  .ir-road-rim {
+    stroke: oklch(0.22 0.04 260 / 0.16);
+  }
+  .ir-road-lane {
+    stroke: oklch(0.22 0.04 260 / 0.05);
+  }
+  .ir-road-base {
+    stroke: oklch(0.22 0.04 260 / 0.14);
+  }
+  .ir-road-dash {
+    stroke: oklch(0.99 0.005 85 / 0.9);
+  }
+  .ir-road-progress-glow {
+    stroke: var(--primary);
+    opacity: 0.18;
+  }
+  .ir-road-progress {
+    stroke: var(--primary);
+    opacity: 0.72;
+  }
+
+  .ir-marker-ring {
+    fill: oklch(1 0 0 / 0.95);
+    stroke: oklch(0.22 0.04 260 / 0.18);
+    stroke-width: 1.5;
+    transition: r 200ms ease, stroke 200ms ease;
+  }
+  .ir-marker-ring.is-active {
+    stroke: var(--primary);
+    stroke-width: 2;
+  }
+  .ir-marker-dot {
+    fill: oklch(0.22 0.04 260 / 0.35);
+  }
+  .ir-marker-dot.is-active {
+    fill: var(--primary);
+  }
+
+  .ir-flag-pole {
+    stroke: oklch(0.22 0.04 260 / 0.45);
+    stroke-width: 1.4;
+  }
+  .ir-flag-cloth {
+    fill: var(--primary);
+    opacity: 0.9;
+  }
+  .ir-flag {
+    animation: ir-flag-in 320ms cubic-bezier(0.22, 1, 0.36, 1);
+    transform-origin: 0 18px;
+  }
+
+  .ir-vehicle-shadow {
+    fill: oklch(0.22 0.04 260 / 0.18);
+  }
+  .ir-car-rocker {
+    fill: oklch(0.35 0.025 260);
+    stroke: oklch(0.22 0.04 260 / 0.2);
+    stroke-width: 0.5;
+  }
+  .ir-car-body {
+    stroke: oklch(0.22 0.04 260 / 0.22);
+    stroke-width: 1.05;
+  }
+  .ir-car-glass {
+    stroke: oklch(0.22 0.04 260 / 0.18);
+    stroke-width: 0.6;
+  }
+  .ir-car-glass-shine {
+    fill: oklch(1 0 0 / 0.28);
+    stroke: none;
+  }
+  .ir-car-window-bar {
+    stroke: oklch(0.22 0.04 260 / 0.28);
+    stroke-width: 0.85;
+    stroke-linecap: round;
+  }
+  .ir-car-seam {
+    stroke: oklch(0.22 0.04 260 / 0.2);
+    stroke-width: 0.75;
+  }
+  .ir-car-handle {
+    fill: oklch(0.55 0.02 260);
+    stroke: oklch(0.22 0.04 260 / 0.25);
+    stroke-width: 0.4;
+  }
+  .ir-car-bumper {
+    stroke: oklch(0.22 0.04 260 / 0.28);
+    stroke-width: 0.55;
+  }
+  .ir-car-grille-lines {
+    stroke: oklch(0.22 0.04 260 / 0.4);
+    stroke-width: 0.7;
+    stroke-linecap: round;
+  }
+  .ir-car-tail {
+    fill: oklch(0.55 0.16 25 / 0.75);
+    stroke: oklch(0.22 0.04 260 / 0.15);
+    stroke-width: 0.4;
+  }
+  .ir-car-exhaust-tip {
+    fill: oklch(0.4 0.02 260);
+    stroke: oklch(0.22 0.04 260 / 0.25);
+    stroke-width: 0.35;
+  }
+  .ir-exhaust {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 180ms ease;
+  }
+  .ir-vehicle.is-moving .ir-exhaust {
+    opacity: 1;
+  }
+  .ir-smoke {
+    fill: oklch(0.55 0.01 260 / 0.28);
+  }
+  .ir-vehicle.is-moving .ir-smoke-1 {
+    animation: ir-smoke-drift 0.9s ease-out infinite;
+  }
+  .ir-vehicle.is-moving .ir-smoke-2 {
+    animation: ir-smoke-drift 1.1s ease-out infinite 0.15s;
+  }
+  .ir-vehicle.is-moving .ir-smoke-3 {
+    animation: ir-smoke-drift 1.25s ease-out infinite 0.3s;
+  }
+  .ir-vehicle.is-moving .ir-smoke-4 {
+    animation: ir-smoke-drift 1.4s ease-out infinite 0.45s;
+  }
+  .ir-car-mirror {
+    fill: oklch(0.9 0.01 85);
+    stroke: oklch(0.22 0.04 260 / 0.25);
+    stroke-width: 0.55;
+  }
+  .ir-vehicle-tire {
+    fill: oklch(0.18 0.02 260);
+  }
+  .ir-vehicle-wheel {
+    fill: oklch(0.3 0.025 260);
+    stroke: oklch(0.22 0.04 260 / 0.35);
+    stroke-width: 0.7;
+  }
+  .ir-vehicle-hub {
+    stroke: oklch(0.22 0.04 260 / 0.22);
+    stroke-width: 0.45;
+  }
+  .ir-car-spoke {
+    fill: oklch(0.78 0.015 260);
+    stroke: oklch(0.22 0.04 260 / 0.2);
+    stroke-width: 0.35;
+  }
+  .ir-car-cap {
+    fill: oklch(0.55 0.02 260);
+  }
+  .ir-vehicle-light {
+    fill: var(--primary);
+    opacity: 0.78;
+    stroke: oklch(1 0 0 / 0.4);
+    stroke-width: 0.35;
+  }
+  .ir-vehicle-light.dim {
+    opacity: 0.5;
+  }
+  .ir-vehicle.is-blink .ir-vehicle-light {
+    animation: ir-headlight-blink 520ms ease;
+  }
+  .ir-vehicle.is-rolling .ir-wheel {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: ir-wheel-spin 0.9s linear infinite;
+  }
+  .ir-vehicle.is-rolling {
+    animation: ir-suspension 2s ease-in-out infinite;
+  }
+
+  .industrial-road-cards {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .ir-checkpoint {
+    position: absolute;
+    width: min(20rem, 42%);
+    transform: translateY(-30%);
+    opacity: 0.42;
+    transition: opacity 380ms ease, transform 380ms cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: auto;
+  }
+  .ir-checkpoint.left {
+    right: calc(50% + 2.75rem);
+  }
+  .ir-checkpoint.right {
+    left: calc(50% + 2.75rem);
+  }
+  .ir-checkpoint.is-active {
+    opacity: 1;
+    transform: translateY(-30%) translateY(-4px);
+    z-index: 2;
+  }
+  .ir-checkpoint-meta {
+    display: flex;
+    align-items: baseline;
+    gap: 0.6rem;
+    margin-bottom: 0.45rem;
+  }
+  .ir-checkpoint.left .ir-checkpoint-meta {
+    justify-content: flex-end;
+  }
+  .ir-checkpoint-year {
+    font-family: var(--font-display);
+    font-size: 0.95rem;
+    font-weight: 700;
+    letter-spacing: -0.02em;
+    color: var(--foreground);
+  }
+  .ir-checkpoint-code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+    font-size: 0.62rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--primary);
+  }
+  .ir-checkpoint-card {
+    border: 1px solid oklch(0.22 0.04 260 / 0.08);
+  }
+  .ir-checkpoint.is-active .ir-checkpoint-card {
+    box-shadow: 0 16px 32px -18px oklch(0.22 0.04 260 / 0.28);
+    border-color: oklch(0.52 0.2 25 / 0.28);
+  }
+
+  @keyframes ir-flag-in {
+    from { opacity: 0; transform: scaleY(0.4); }
+    to { opacity: 1; transform: scaleY(1); }
+  }
+  @keyframes ir-headlight-blink {
+    0%, 100% { opacity: 0.55; }
+    35% { opacity: 1; }
+    55% { opacity: 0.25; }
+    75% { opacity: 1; }
+  }
+  @keyframes ir-wheel-spin {
+    to { transform: rotate(360deg); }
+  }
+  @keyframes ir-suspension {
+    0%, 100% { translate: 0 0; }
+    50% { translate: 0 -1.2px; }
+  }
+  @keyframes ir-smoke-drift {
+    0% {
+      opacity: 0.35;
+      transform: translate(0, 0) scale(0.55);
+    }
+    55% {
+      opacity: 0.22;
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-10px, -3px) scale(1.35);
+    }
+  }
+
+  @media (max-width: 1023px) {
+    .ir-checkpoint {
+      width: min(17.5rem, 44%);
+    }
+    .ir-checkpoint.left {
+      right: calc(50% + 1.75rem);
+    }
+    .ir-checkpoint.right {
+      left: calc(50% + 1.75rem);
+    }
+  }
+
+  @media (max-width: 639px) {
+    .industrial-road {
+      padding-bottom: 1rem;
+    }
+    .ir-checkpoint {
+      width: calc(100% - 5.5rem);
+      left: 4.75rem !important;
+      right: auto !important;
+      transform: translateY(-12%);
+    }
+    .ir-checkpoint.is-active {
+      transform: translateY(-12%) translateY(-3px);
+    }
+    .ir-checkpoint.left .ir-checkpoint-meta,
+    .ir-checkpoint.right .ir-checkpoint-meta {
+      justify-content: flex-start;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .ir-checkpoint,
+    .ir-checkpoint.is-active,
+    .ir-flag {
+      transition: none;
+      animation: none;
+    }
+    .ir-vehicle.is-rolling,
+    .ir-vehicle.is-rolling .ir-wheel,
+    .ir-vehicle.is-blink .ir-vehicle-light,
+    .ir-vehicle.is-moving .ir-smoke-1,
+    .ir-vehicle.is-moving .ir-smoke-2,
+    .ir-vehicle.is-moving .ir-smoke-3,
+    .ir-vehicle.is-moving .ir-smoke-4 {
+      animation: none;
+    }
+    .ir-exhaust {
+      display: none;
+    }
+  }
 }

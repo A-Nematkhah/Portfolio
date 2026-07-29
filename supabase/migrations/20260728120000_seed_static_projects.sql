@@ -11,7 +11,7 @@ SELECT * FROM (VALUES
     'Housingless Rolling Stand',
     'Detailed 3D model of a housingless rolling stand used in modern steel rolling mills. Designed for high rigidity, easy roll changes, and improved product tolerances.',
     '3D Model', 'SolidWorks', '3D Models',
-    '/projects/proj-rolling-mill.webp', NULL::text, NULL::text,
+    '/pictures/housingless-stand.png', NULL::text, NULL::text,
     '[]'::jsonb, 120
   ),
   (
@@ -25,14 +25,14 @@ SELECT * FROM (VALUES
     'Start–Stop Shear',
     'Mechanism design and motion simulation of a start–stop shear used to cut hot-rolled bars at line speed with synchronized blade motion.',
     '3D Model', 'SolidWorks Motion', '3D Models',
-    '/projects/proj-rolling-mill.webp', '/videos/start-stop-shear.mp4', NULL,
+    '/projects/proj-start-stop-shear.webp', '/videos/start-stop-shear.mp4', NULL,
     '[]'::jsonb, 100
   ),
   (
     'Iris Cap Mechanism',
     'Iris-style aperture mechanism modeled and animated to validate linkage geometry, contact, and synchronized blade motion.',
     '3D Model', 'SolidWorks Motion', '3D Models',
-    '/projects/proj-rolling-mill.webp', '/videos/iris-cap.mp4', NULL,
+    '/projects/proj-iris-cap.webp', '/videos/iris-cap.mp4', NULL,
     '[]'::jsonb, 90
   ),
   (
@@ -86,21 +86,21 @@ SELECT * FROM (VALUES
     'A+A−B+B− Nonstop Cycle',
     'Continuous A+A−B+B− pneumatic sequence implemented in PLC ladder logic, including start/stop interlocks and cycle counter.',
     'PLC', 'PLC Ladder Logic', 'PLC, Hydraulic & Pneumatic',
-    '/projects/proj-gearbox-new.webp', '/videos/a-b-nonstop.mp4', NULL,
+    '/projects/proj-a-b-nonstop.webp', '/videos/a-b-nonstop.mp4', NULL,
     '[]'::jsonb, 30
   ),
   (
     'Hydraulic Circuit Simulation',
     'Hydraulic circuit designed and simulated in FluidSIM, demonstrating actuator sequencing, pressure regulation and flow control.',
     'Hydraulic', 'FluidSIM', 'PLC, Hydraulic & Pneumatic',
-    '/projects/proj-gearbox-new.webp', '/videos/hydraulic-sim.mp4', NULL,
+    '/projects/proj-hydraulic-sim.webp', '/videos/hydraulic-sim.mp4', NULL,
     '[]'::jsonb, 20
   ),
   (
     'Pneumatic Sequence Control',
     'Pneumatic sequence controller validated in FluidSIM with sensors and limit switches driving multi-cylinder synchronized motion.',
     'Pneumatic', 'FluidSIM', 'PLC, Hydraulic & Pneumatic',
-    '/projects/proj-gearbox-new.webp', '/videos/pneumatic-sim.mp4', NULL,
+    '/projects/proj-pneumatic-sim.webp', '/videos/pneumatic-sim.mp4', NULL,
     '[]'::jsonb, 10
   )
 ) AS v(title, description, tag, tool, category, thumbnail_url, video_url, external_link, media, sort_order)

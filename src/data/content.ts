@@ -19,10 +19,23 @@ export const NAV = [
   "Contact",
 ] as const;
 
-export const EXPERIENCE = [
+export type ExperienceItem = {
+  co: string;
+  role: string;
+  year: string;
+  bullets: readonly string[];
+  dept?: string;
+  current?: boolean;
+  tags?: readonly string[];
+  /** Optional logo asset path; omit to show a replaceable placeholder */
+  logo?: string;
+};
+
+export const EXPERIENCE: ExperienceItem[] = [
   {
     co: "Mechatronic Mobtakeran Arg",
     role: "Industrial Designer",
+    year: "2021",
     bullets: [
       "Laboratory printers",
       "Dental milling systems",
@@ -33,6 +46,7 @@ export const EXPERIENCE = [
   {
     co: "Iranian Steel Development Group",
     role: "Mechanical Designer & Engineer",
+    year: "2022",
     bullets: [
       "Steel production line equipment",
       "Industrial machinery design",
@@ -43,6 +57,7 @@ export const EXPERIENCE = [
   {
     co: "NYOP — Netherlands",
     role: "Product Designer",
+    year: "2024",
     bullets: [
       "Smart home products",
       "Smart insect trap",
@@ -50,7 +65,21 @@ export const EXPERIENCE = [
       "Prototype development & CAD optimization",
     ],
   },
-] as const;
+  {
+    co: "Supishi Co",
+    role: "Mechatronics Engineer",
+    year: "Present",
+    dept: "Research & Development (R&D)",
+    current: true,
+    bullets: [
+      "Custom conveyor systems for production lines",
+      "Label applicator mechanism design",
+      "Domino inkjet printer line integration",
+      "Custom industrial equipment and machine components",
+      "Mechatronic systems: mechanics, electronics, control",
+    ],
+  },
+];
 
 export const RESEARCH: { icon: LucideIcon; t: string; d: string }[] = [
   { icon: Bot, t: "Reinforcement Learning", d: "Reward shaping & policy optimization" },

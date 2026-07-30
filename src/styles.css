@@ -677,59 +677,58 @@
     }
   }
 
-  /* ===== Certificates continuous rail (RTL scroll) ===== */
+  /* ===== Certificates continuous rail (RTL scroll + drag) ===== */
   .cert-marquee {
     container-type: inline-size;
     overflow: hidden;
     width: 100%;
+    cursor: grab;
+    touch-action: pan-y;
+    user-select: none;
     mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
     -webkit-mask-image: linear-gradient(90deg, transparent, #000 3%, #000 97%, transparent);
+  }
+  .cert-marquee:active {
+    cursor: grabbing;
   }
   .cert-marquee-track {
     display: flex;
     width: max-content;
     gap: 1.25rem;
-    animation: cert-marquee-rtl 42s linear infinite;
     will-change: transform;
   }
-  .cert-marquee:hover .cert-marquee-track,
-  .cert-marquee.is-paused .cert-marquee-track {
-    animation-play-state: paused;
+  .cert-marquee-track.is-interactive {
+    animation: none;
   }
   .cert-marquee-card {
     flex: 0 0 calc((100cqi - 2.5rem) / 3);
     min-width: 0;
-    cursor: pointer;
+    cursor: grab;
+  }
+  .cert-marquee:active .cert-marquee-card {
+    cursor: grabbing;
   }
   @media (max-width: 767px) {
     .cert-marquee-card {
       flex-basis: calc((100cqi - 1.25rem) / 1.35);
     }
   }
-  @keyframes cert-marquee-rtl {
-    from {
-      transform: translate3d(0, 0, 0);
-    }
-    to {
-      transform: translate3d(-50%, 0, 0);
-    }
-  }
   @media (prefers-reduced-motion: reduce) {
-    .cert-marquee-track {
-      animation: none;
-      flex-wrap: nowrap;
+    .cert-marquee {
+      cursor: default;
+      mask-image: none;
+      -webkit-mask-image: none;
       overflow-x: auto;
-      width: 100%;
-      padding-bottom: 0.35rem;
-      scroll-snap-type: x mandatory;
       -webkit-overflow-scrolling: touch;
+      scroll-snap-type: x mandatory;
+    }
+    .cert-marquee-track {
+      /* Still allow manual drag via JS transform; snap-friendly padding */
+      padding-bottom: 0.15rem;
     }
     .cert-marquee-card {
       scroll-snap-align: start;
-    }
-    .cert-marquee {
-      mask-image: none;
-      -webkit-mask-image: none;
+      cursor: pointer;
     }
   }
 

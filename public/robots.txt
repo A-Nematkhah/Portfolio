@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://a-nematkhah.github.io/Portfolio/sitemap.xml

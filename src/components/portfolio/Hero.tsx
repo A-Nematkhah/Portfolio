@@ -4,7 +4,10 @@ import heroMachine from "@/assets/hero-machine-v2.webp";
 
 export function Hero() {
   return (
-    <section id="home" className="relative grid items-center gap-10 py-12 md:grid-cols-2 md:py-20 pt-0">
+    <section
+      id="home"
+      className="relative grid items-center gap-10 py-12 md:grid-cols-2 md:py-20 pt-0"
+    >
       <m.div
         data-lidar-object="OVERVIEW"
         initial={{ opacity: 0, y: 30 }}
@@ -76,10 +79,7 @@ export function Hero() {
             { icon: Award, n: "3+", l: "Years of Experience" },
             { icon: Wrench, n: "15+", l: "Technologies" },
           ].map((s) => (
-            <div
-              key={s.l}
-              className="surface-card flex items-center gap-3 rounded-xl p-4"
-            >
+            <div key={s.l} className="surface-card flex items-center gap-3 rounded-xl p-4">
               <div className="grid h-10 w-10 place-items-center rounded-lg bg-primary/15 text-primary">
                 <s.icon className="h-5 w-5" />
               </div>

@@ -19,13 +19,15 @@ export function FeaturedShowcase() {
             </div>
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">3D Modeling</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+              3D Modeling
+            </p>
             <h3 className="mt-2 text-3xl font-bold">Legbelt — Smart Bed Bug Trap System</h3>
             <p className="mt-4 text-sm text-muted-foreground">
-              Designed a furniture-integrated bed bug trap system focused on discreet protection, modern
-              aesthetics, and user-friendly integration. Developed the mechanical structure, industrial
-              design, and product visualization with attention to manufacturability and structural
-              stability.
+              Designed a furniture-integrated bed bug trap system focused on discreet protection,
+              modern aesthetics, and user-friendly integration. Developed the mechanical structure,
+              industrial design, and product visualization with attention to manufacturability and
+              structural stability.
             </p>
             <ul className="mt-6 space-y-2 text-sm">
               {[

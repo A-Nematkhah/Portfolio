@@ -79,9 +79,12 @@ export function BlueprintBackground() {
         if (!el) return;
         for (const [k, v] of Object.entries(attrs)) el.setAttribute(k, String(v));
       };
-      const originX = 56, originY = H - 70;
-      const c1x = W * 0.76, c1y = H * 0.3;
-      const c3x = W * 0.2, c3y = H * 0.75;
+      const originX = 56,
+        originY = H - 70;
+      const c1x = W * 0.76,
+        c1y = H * 0.3;
+      const c3x = W * 0.2,
+        c3y = H * 0.75;
 
       set("bp-origin", { transform: `translate(${originX},${originY})` });
       set("bp-circle-outer", { cx: c1x, cy: c1y });
@@ -91,7 +94,9 @@ export function BlueprintBackground() {
       set("bp-tick2", { x1: c1x, y1: c1y - 10, x2: c1x, y2: c1y + 10 });
       set("bp-tick-circle", { cx: c1x, cy: c1y });
       const labelXs = [W * 0.04, W * 0.16, W * 0.28, W * 0.62, W * 0.74, W * 0.86];
-      ["l1", "l2", "l3", "l4", "l5", "l6"].forEach((id, i) => set(id, { x: labelXs[i], y: H * 0.49 }));
+      ["l1", "l2", "l3", "l4", "l5", "l6"].forEach((id, i) =>
+        set(id, { x: labelXs[i], y: H * 0.49 }),
+      );
     }
 
     function paintSvg() {
@@ -125,9 +130,16 @@ export function BlueprintBackground() {
         const len = isVertical ? H : W;
         for (let p = 0; p <= len; p += SEGMENT) {
           let x: number, y: number;
-          if (isVertical) { x = pos; y = p; } else { x = p; y = pos; }
+          if (isVertical) {
+            x = pos;
+            y = p;
+          } else {
+            x = p;
+            y = pos;
+          }
           if (!reduceMotion) {
-            const dx = x - eased.x, dy = y - eased.y;
+            const dx = x - eased.x,
+              dy = y - eased.y;
             const dist = Math.sqrt(dx * dx + dy * dy);
             const f = falloff(dist);
             if (f > 0) {
@@ -136,7 +148,8 @@ export function BlueprintBackground() {
               else y += (dy === 0 ? 1 : dy / (Math.abs(dy) + 40)) * push;
             }
           }
-          if (p === 0) ctx!.moveTo(x, y); else ctx!.lineTo(x, y);
+          if (p === 0) ctx!.moveTo(x, y);
+          else ctx!.lineTo(x, y);
         }
         ctx!.stroke();
       }
@@ -164,11 +177,20 @@ export function BlueprintBackground() {
     window.addEventListener("resize", sizeCanvas);
 
     const mo = new MutationObserver(syncThemeColors);
-    mo.observe(document.documentElement, { attributes: true, attributeFilter: ["class", "data-theme"] });
+    mo.observe(document.documentElement, {
+      attributes: true,
+      attributeFilter: ["class", "data-theme"],
+    });
 
     if (!reduceMotion) {
-      const onMove = (e: MouseEvent) => { mouse.x = e.clientX; mouse.y = e.clientY; };
-      const onLeave = () => { mouse.x = -9999; mouse.y = -9999; };
+      const onMove = (e: MouseEvent) => {
+        mouse.x = e.clientX;
+        mouse.y = e.clientY;
+      };
+      const onLeave = () => {
+        mouse.x = -9999;
+        mouse.y = -9999;
+      };
       window.addEventListener("mousemove", onMove);
       window.addEventListener("mouseleave", onLeave);
       rafId = requestAnimationFrame(loop);
@@ -195,7 +217,13 @@ export function BlueprintBackground() {
         className="absolute inset-0 h-full w-full opacity-90"
         style={{ overflow: "visible" }}
       >
-        <g data-tier="tablet-up" data-bp-fill="0.22" fill="rgba(167,176,188,0.22)" fontSize="10" fontFamily="monospace">
+        <g
+          data-tier="tablet-up"
+          data-bp-fill="0.22"
+          fill="rgba(167,176,188,0.22)"
+          fontSize="10"
+          fontFamily="monospace"
+        >
           <text id="l1">-300</text>
           <text id="l2">-200</text>
           <text id="l3">-100</text>
@@ -203,24 +231,97 @@ export function BlueprintBackground() {
           <text id="l5">200</text>
           <text id="l6">300</text>
         </g>
-        <g id="bp-origin" data-tier="desktop" data-bp-stroke="0.30" stroke="rgba(167,176,188,0.30)" strokeWidth={1} fill="none">
+        <g
+          id="bp-origin"
+          data-tier="desktop"
+          data-bp-stroke="0.30"
+          stroke="rgba(167,176,188,0.30)"
+          strokeWidth={1}
+          fill="none"
+        >
           <line x1="0" y1="0" x2="34" y2="0" markerEnd="url(#bp-live-arrow)" />
           <line x1="0" y1="0" x2="0" y2="-34" markerEnd="url(#bp-live-arrow)" />
           <line x1="0" y1="0" x2="-20" y2="18" markerEnd="url(#bp-live-arrow)" />
-          <circle cx="0" cy="0" r="2.5" data-bp-fill="0.30" fill="rgba(167,176,188,0.30)" stroke="none" />
-          <text x="40" y="4" fontSize="10" fontFamily="monospace" data-bp-fill="0.28" fill="rgba(167,176,188,0.28)" stroke="none">X</text>
-          <text x="-6" y="-40" fontSize="10" fontFamily="monospace" data-bp-fill="0.28" fill="rgba(167,176,188,0.28)" stroke="none">Y</text>
-          <text x="-32" y="26" fontSize="10" fontFamily="monospace" data-bp-fill="0.28" fill="rgba(167,176,188,0.28)" stroke="none">Z</text>
+          <circle
+            cx="0"
+            cy="0"
+            r="2.5"
+            data-bp-fill="0.30"
+            fill="rgba(167,176,188,0.30)"
+            stroke="none"
+          />
+          <text
+            x="40"
+            y="4"
+            fontSize="10"
+            fontFamily="monospace"
+            data-bp-fill="0.28"
+            fill="rgba(167,176,188,0.28)"
+            stroke="none"
+          >
+            X
+          </text>
+          <text
+            x="-6"
+            y="-40"
+            fontSize="10"
+            fontFamily="monospace"
+            data-bp-fill="0.28"
+            fill="rgba(167,176,188,0.28)"
+            stroke="none"
+          >
+            Y
+          </text>
+          <text
+            x="-32"
+            y="26"
+            fontSize="10"
+            fontFamily="monospace"
+            data-bp-fill="0.28"
+            fill="rgba(167,176,188,0.28)"
+            stroke="none"
+          >
+            Z
+          </text>
         </g>
         <defs>
-          <marker id="bp-live-arrow" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+          <marker
+            id="bp-live-arrow"
+            markerWidth="6"
+            markerHeight="6"
+            refX="5"
+            refY="3"
+            orient="auto"
+          >
             <path d="M0,0 L6,3 L0,6 Z" data-bp-fill="0.30" fill="rgba(167,176,188,0.30)" />
           </marker>
         </defs>
         <g data-tier="desktop">
-          <circle id="bp-circle-outer" r="72" fill="none" data-bp-stroke="0.13" stroke="rgba(167,176,188,0.13)" strokeWidth={1} strokeDasharray="3 4" />
-          <circle id="bp-circle-inner" r="30" fill="none" data-bp-stroke="0.13" stroke="rgba(167,176,188,0.13)" strokeWidth={1} />
-          <circle id="bp-circle-small" r="48" fill="none" data-bp-stroke="0.11" stroke="rgba(167,176,188,0.11)" strokeWidth={1} />
+          <circle
+            id="bp-circle-outer"
+            r="72"
+            fill="none"
+            data-bp-stroke="0.13"
+            stroke="rgba(167,176,188,0.13)"
+            strokeWidth={1}
+            strokeDasharray="3 4"
+          />
+          <circle
+            id="bp-circle-inner"
+            r="30"
+            fill="none"
+            data-bp-stroke="0.13"
+            stroke="rgba(167,176,188,0.13)"
+            strokeWidth={1}
+          />
+          <circle
+            id="bp-circle-small"
+            r="48"
+            fill="none"
+            data-bp-stroke="0.11"
+            stroke="rgba(167,176,188,0.11)"
+            strokeWidth={1}
+          />
           <g data-bp-stroke="0.20" stroke="rgba(167,176,188,0.20)" strokeWidth={1}>
             <line id="bp-tick1" />
             <line id="bp-tick2" />

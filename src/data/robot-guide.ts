@@ -40,10 +40,7 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     selector: "#projects",
     label: "PROJECTS",
     code: "03",
-    lines: [
-      "These aren't mockups. They move.",
-      "Sometimes on purpose.",
-    ],
+    lines: ["These aren't mockups. They move.", "Sometimes on purpose."],
   },
   {
     id: "skills-mechanical",
@@ -60,10 +57,7 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     selector: "#skills-robotics",
     label: "ROBOTICS",
     code: "05",
-    lines: [
-      "Sensors online. World looks noisy from down here.",
-      "Perception first. Drama later.",
-    ],
+    lines: ["Sensors online. World looks noisy from down here.", "Perception first. Drama later."],
   },
   {
     id: "skills-ai",
@@ -110,10 +104,7 @@ export const ROBOT_GUIDE_STOPS: RobotGuideStop[] = [
     selector: "#contact",
     label: "CONTACT",
     code: "10",
-    lines: [
-      "End of route. Handshake protocol ready.",
-      "Got a problem worth building for?",
-    ],
+    lines: ["End of route. Handshake protocol ready.", "Got a problem worth building for?"],
   },
 ];
 

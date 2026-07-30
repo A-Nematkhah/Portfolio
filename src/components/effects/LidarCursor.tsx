@@ -33,7 +33,9 @@ const TEXT_INPUT_SELECTOR = "input, textarea, select, [contenteditable='true']";
 
 function isCoarsePointer() {
   if (typeof window === "undefined" || !window.matchMedia) return true;
-  return window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches;
+  return (
+    window.matchMedia("(pointer: coarse)").matches || window.matchMedia("(hover: none)").matches
+  );
 }
 
 type Mode = "idle" | "object" | "project";
@@ -135,7 +137,9 @@ export function LidarCursor() {
         <circle className="lidar-dot" cx="23" cy="23" r="1.5" />
       </svg>
       <div className="lidar-label">
-        <span ref={line1Ref} className="lidar-line lidar-line-primary">SCANNING...</span>
+        <span ref={line1Ref} className="lidar-line lidar-line-primary">
+          SCANNING...
+        </span>
         <span ref={line2Ref} className="lidar-line" />
         <span ref={line3Ref} className="lidar-line" />
       </div>

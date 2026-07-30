@@ -15,13 +15,7 @@ const SECTION_BLEND = 0.22; // slight pull toward active section — most motion
 
 function GuideRobotSvg({ scanning }: { scanning: boolean }) {
   return (
-    <svg
-      viewBox="0 0 64 78"
-      width="72"
-      height="88"
-      aria-hidden
-      className="robot-guide-svg"
-    >
+    <svg viewBox="0 0 64 78" width="72" height="88" aria-hidden className="robot-guide-svg">
       <defs>
         <linearGradient id="rg-body" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="oklch(0.98 0.005 85)" />
@@ -35,12 +29,35 @@ function GuideRobotSvg({ scanning }: { scanning: boolean }) {
 
       <ellipse cx="32" cy="72" rx="16" ry="3.5" fill="oklch(0.22 0.04 260 / 0.12)" />
 
-      <circle cx="18" cy="62" r="7" fill="url(#rg-metal)" stroke="oklch(0.22 0.04 260 / 0.2)" strokeWidth="1" />
-      <circle cx="46" cy="62" r="7" fill="url(#rg-metal)" stroke="oklch(0.22 0.04 260 / 0.2)" strokeWidth="1" />
+      <circle
+        cx="18"
+        cy="62"
+        r="7"
+        fill="url(#rg-metal)"
+        stroke="oklch(0.22 0.04 260 / 0.2)"
+        strokeWidth="1"
+      />
+      <circle
+        cx="46"
+        cy="62"
+        r="7"
+        fill="url(#rg-metal)"
+        stroke="oklch(0.22 0.04 260 / 0.2)"
+        strokeWidth="1"
+      />
       <circle cx="18" cy="62" r="2.4" fill="oklch(0.22 0.04 260 / 0.45)" />
       <circle cx="46" cy="62" r="2.4" fill="oklch(0.22 0.04 260 / 0.45)" />
 
-      <rect x="14" y="38" width="36" height="24" rx="6" fill="url(#rg-body)" stroke="oklch(0.22 0.04 260 / 0.14)" strokeWidth="1.2" />
+      <rect
+        x="14"
+        y="38"
+        width="36"
+        height="24"
+        rx="6"
+        fill="url(#rg-body)"
+        stroke="oklch(0.22 0.04 260 / 0.14)"
+        strokeWidth="1.2"
+      />
       <rect x="18" y="42" width="28" height="8" rx="2" fill="oklch(0.22 0.04 260 / 0.06)" />
       <circle cx="22" cy="54" r="1.6" fill="var(--primary)" opacity="0.85" />
       <circle cx="28" cy="54" r="1.6" fill="oklch(0.22 0.04 260 / 0.25)" />
@@ -48,7 +65,16 @@ function GuideRobotSvg({ scanning }: { scanning: boolean }) {
 
       <rect x="30" y="22" width="4" height="18" rx="1.5" fill="url(#rg-metal)" />
 
-      <rect x="22" y="10" width="20" height="14" rx="4" fill="url(#rg-body)" stroke="oklch(0.22 0.04 260 / 0.16)" strokeWidth="1.2" />
+      <rect
+        x="22"
+        y="10"
+        width="20"
+        height="14"
+        rx="4"
+        fill="url(#rg-body)"
+        stroke="oklch(0.22 0.04 260 / 0.16)"
+        strokeWidth="1.2"
+      />
       <circle cx="32" cy="17" r="4.2" fill="oklch(0.22 0.04 260 / 0.75)" />
       <circle
         cx="32"
@@ -57,8 +83,22 @@ function GuideRobotSvg({ scanning }: { scanning: boolean }) {
         className={scanning ? "robot-guide-lens is-scanning" : "robot-guide-lens"}
         fill="var(--primary)"
       />
-      <line x1="40" y1="12" x2="46" y2="4" stroke="oklch(0.22 0.04 260 / 0.35)" strokeWidth="1.2" strokeLinecap="round" />
-      <circle cx="46" cy="4" r="2" fill="var(--primary)" className={scanning ? "robot-guide-beacon" : ""} />
+      <line
+        x1="40"
+        y1="12"
+        x2="46"
+        y2="4"
+        stroke="oklch(0.22 0.04 260 / 0.35)"
+        strokeWidth="1.2"
+        strokeLinecap="round"
+      />
+      <circle
+        cx="46"
+        cy="4"
+        r="2"
+        fill="var(--primary)"
+        className={scanning ? "robot-guide-beacon" : ""}
+      />
     </svg>
   );
 }
@@ -309,7 +349,10 @@ export function RobotGuide() {
     >
       <div ref={motionRef} className="robot-guide-motion">
         <div className="robot-guide-stack">
-          <div className={`robot-guide-note ${noteOpen && activeStop ? "is-open" : ""}`} role="status">
+          <div
+            className={`robot-guide-note ${noteOpen && activeStop ? "is-open" : ""}`}
+            role="status"
+          >
             {activeStop && (
               <>
                 <p className="robot-guide-note-meta">

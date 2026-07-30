@@ -91,7 +91,8 @@ export const PROJECTS: Project[] = [
       {
         type: "image",
         src: pub("/winch/winch-assembly-2.webp"),
-        caption: "Winch base sub-assembly — detailed exploded view with numbered parts and weight table.",
+        caption:
+          "Winch base sub-assembly — detailed exploded view with numbered parts and weight table.",
       },
     ],
   },
@@ -158,7 +159,8 @@ export const PROJECTS: Project[] = [
       {
         type: "video",
         src: pub("/matlab/part1.mp4"),
-        caption: "3D simulation — manipulator executing the planned trajectory under sliding mode control.",
+        caption:
+          "3D simulation — manipulator executing the planned trajectory under sliding mode control.",
       },
       {
         type: "video",

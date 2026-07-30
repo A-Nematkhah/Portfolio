@@ -91,7 +91,15 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
           "Mechatronics engineer specializing in mechanical design, industrial systems, project management, and intelligent automation.",
       },
       { property: "og:type", content: "website" },
+      {
+        property: "og:image",
+        content: "https://a-nematkhah.github.io/Portfolio/projects/conveyor-v2.webp",
+      },
       { name: "twitter:card", content: "summary_large_image" },
+      {
+        name: "twitter:image",
+        content: "https://a-nematkhah.github.io/Portfolio/projects/conveyor-v2.webp",
+      },
       { name: "twitter:title", content: "Amirhossein Nematkhah | Mechatronics Engineer Portfolio" },
       {
         name: "twitter:description",

@@ -35,7 +35,15 @@ function buildRoadPath(
   return { d, height, stops };
 }
 
-function GuideCar({ blink, rolling, moving }: { blink: boolean; rolling: boolean; moving: boolean }) {
+function GuideCar({
+  blink,
+  rolling,
+  moving,
+}: {
+  blink: boolean;
+  rolling: boolean;
+  moving: boolean;
+}) {
   return (
     <g
       className={`ir-vehicle ${rolling ? "is-rolling" : ""} ${blink ? "is-blink" : ""} ${moving ? "is-moving" : ""}`}
@@ -251,10 +259,7 @@ export function Experience() {
       const pt = path.getPointAtLength(len);
       const look = path.getPointAtLength(Math.min(total, len + 2));
       const angle = (Math.atan2(look.y - pt.y, look.x - pt.x) * 180) / Math.PI;
-      vehicle.setAttribute(
-        "transform",
-        `translate(${pt.x}, ${pt.y}) rotate(${angle})`,
-      );
+      vehicle.setAttribute("transform", `translate(${pt.x}, ${pt.y}) rotate(${angle})`);
       progressPath.style.strokeDashoffset = `${total * (1 - p)}`;
       if (progressGlow) progressGlow.style.strokeDashoffset = `${total * (1 - p)}`;
     };

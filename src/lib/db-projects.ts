@@ -57,11 +57,19 @@ export async function uploadMedia(file: File): Promise<{ url: string; type: "ima
   if (!isSupabaseConfigured()) throw new Error("Supabase is not configured (.env missing)");
   if (!file || file.size === 0) throw new Error("File is empty");
 
-  const ext = (file.name.split(".").pop() ?? "bin").toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
+  const ext =
+    (file.name.split(".").pop() ?? "bin").toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
   const path = `${crypto.randomUUID()}.${ext}`;
   const inferredType: "image" | "video" = file.type.startsWith("video") ? "video" : "image";
 
-  console.log("[uploadMedia] starting", { name: file.name, size: file.size, mime: file.type, path });
+  if (import.meta.env.DEV) {
+    console.log("[uploadMedia] starting", {
+      name: file.name,
+      size: file.size,
+      mime: file.type,
+      path,
+    });
+  }
 
   const { error: uploadErr } = await supabase.storage.from("project-media").upload(path, file, {
     cacheControl: "31536000",
@@ -81,7 +89,9 @@ export async function uploadMedia(file: File): Promise<{ url: string; type: "ima
     throw new Error("Upload succeeded but public URL could not be generated");
   }
 
-  console.log("[uploadMedia] success", { path, url, type: inferredType });
+  if (import.meta.env.DEV) {
+    console.log("[uploadMedia] success", { path, url, type: inferredType });
+  }
   return { url, type: inferredType };
 }
 

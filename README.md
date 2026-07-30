@@ -24,12 +24,12 @@ npm run dev
 
 ## Scripts
 
-| Command | Description |
-| --- | --- |
-| `npm run dev` | Local development |
-| `npm run build` | Production build (`dist/client`) |
-| `npm run preview` | Preview production build |
-| `npm run lint` | ESLint |
+| Command           | Description                      |
+| ----------------- | -------------------------------- |
+| `npm run dev`     | Local development                |
+| `npm run build`   | Production build (`dist/client`) |
+| `npm run preview` | Preview production build         |
+| `npm run lint`    | ESLint                           |
 
 ## Deploy
 

@@ -1,12 +1,4 @@
-import {
-  Bot,
-  Cpu,
-  Sparkles,
-  Layers,
-  Activity,
-  Shield,
-  type LucideIcon,
-} from "lucide-react";
+import { Bot, Cpu, Sparkles, Layers, Activity, Shield, type LucideIcon } from "lucide-react";
 import { pub } from "@/lib/pub";
 
 export const NAV = [
@@ -92,6 +84,8 @@ export const RESEARCH: { icon: LucideIcon; t: string; d: string }[] = [
 
 export type Certificate = {
   src: string;
+  width: number;
+  height: number;
   title: string;
   issuer: string;
   category: string;
@@ -104,6 +98,8 @@ export type Certificate = {
 export const CERTIFICATES: Certificate[] = [
   {
     src: pub("/pictures/cert-1.png"),
+    width: 1218,
+    height: 858,
     title: "Mastering Machine Learning with Python: A Comprehensive Online Course",
     issuer: "FaraDars",
     category: "Machine Learning",
@@ -114,6 +110,8 @@ export const CERTIFICATES: Certificate[] = [
   },
   {
     src: pub("/pictures/cert-2.png"),
+    width: 1216,
+    height: 858,
     title: "Mastering Microsoft Project 2019: Your Ultimate Guide to Project Management Success",
     issuer: "FaraDars",
     category: "Project Management",
@@ -124,6 +122,8 @@ export const CERTIFICATES: Certificate[] = [
   },
   {
     src: pub("/pictures/cert-3.png"),
+    width: 1140,
+    height: 805,
     title: "Mastering Python: Advanced Techniques for Reinforcement Learning",
     issuer: "FaraDars",
     category: "Reinforcement Learning",

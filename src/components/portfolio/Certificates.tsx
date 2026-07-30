@@ -14,8 +14,8 @@ export function Certificates() {
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Credentials</p>
         <h2 className="mt-3 text-4xl font-bold md:text-5xl">Certificates</h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
-          Professional courses and credentials earned across engineering, simulation, and intelligent
-          systems.
+          Professional courses and credentials earned across engineering, simulation, and
+          intelligent systems.
         </p>
       </div>
 
@@ -36,6 +36,8 @@ export function Certificates() {
               <img
                 src={c.src}
                 alt={c.title}
+                width={c.width}
+                height={c.height}
                 loading="lazy"
                 className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
@@ -96,6 +98,8 @@ function CertificateModal({
           <img
             src={certificate.src}
             alt={certificate.title}
+            width={certificate.width}
+            height={certificate.height}
             className="h-auto max-h-[75vh] w-full object-contain"
           />
         </div>
@@ -104,7 +108,9 @@ function CertificateModal({
             {certificate.category} <span className="mx-2 opacity-60">•</span> {certificate.issuer}
           </p>
           <h3 className="mt-3 text-2xl font-bold md:text-3xl">{certificate.title}</h3>
-          <p className="mt-2 text-sm text-muted-foreground">Instructed by {certificate.instructor}</p>
+          <p className="mt-2 text-sm text-muted-foreground">
+            Instructed by {certificate.instructor}
+          </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[

@@ -6,17 +6,23 @@ export function About() {
       <div data-lidar-object="ENGINEER PROFILE" className="grid items-start gap-10 md:grid-cols-2">
         <div>
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">About</p>
-          <h2 className="mt-3 text-4xl font-bold md:text-5xl">Engineering meets intelligent design.</h2>
+          <h2 className="mt-3 text-4xl font-bold md:text-5xl">
+            Engineering meets intelligent design.
+          </h2>
           <p className="mt-6 text-sm text-muted-foreground">
-            Mechatronics engineer with industrial experience in mechanical design, production systems,
-            project management, industrial equipment development, and intelligent automation. Experienced
-            in CAD design, simulation, industrial engineering workflows, and modern AI-based robotics
-            research.
+            Mechatronics engineer with industrial experience in mechanical design, production
+            systems, project management, industrial equipment development, and intelligent
+            automation. Experienced in CAD design, simulation, industrial engineering workflows, and
+            modern AI-based robotics research.
           </p>
         </div>
         <div className="space-y-4">
           {[
-            { icon: GraduationCap, t: "B.Sc. Mechanical Engineering", d: "Sahand University of Technology" },
+            {
+              icon: GraduationCap,
+              t: "B.Sc. Mechanical Engineering",
+              d: "Sahand University of Technology",
+            },
             {
               icon: GraduationCap,
               t: "M.Sc. Mechatronics Engineering",

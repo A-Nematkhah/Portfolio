@@ -464,7 +464,9 @@ function ProjectModalInner({
                 key={mItem.src}
                 onClick={() => setIdx(i)}
                 className={`relative shrink-0 overflow-hidden rounded-md border transition ${
-                  i === safeIdx ? "border-primary glow-primary" : "border-border opacity-70 hover:opacity-100"
+                  i === safeIdx
+                    ? "border-primary glow-primary"
+                    : "border-border opacity-70 hover:opacity-100"
                 }`}
               >
                 {mItem.type === "video" ? (
@@ -486,12 +488,16 @@ function ProjectModalInner({
         )}
 
         <div className="p-6 md:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{project.tag}</p>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+            {project.tag}
+          </p>
           <h3 className="mt-2 text-2xl font-bold md:text-3xl">{project.title}</h3>
           {current.caption && hasMany && (
             <p className="mt-3 text-sm italic text-primary/90">{current.caption}</p>
           )}
-          <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">{project.desc}</p>
+          <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
+            {project.desc}
+          </p>
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <span className="rounded-md border border-border bg-secondary/40 px-3 py-1 text-xs text-muted-foreground">
               {project.tool}

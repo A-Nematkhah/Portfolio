@@ -9,9 +9,7 @@ export function resolveAssetUrl(url: string | null | undefined): string {
   return pub(url.startsWith("/") ? url : `/${url}`);
 }
 
-export function resolveMediaList<T extends { src: string }>(
-  media: T[] | null | undefined,
-): T[] {
+export function resolveMediaList<T extends { src: string }>(media: T[] | null | undefined): T[] {
   if (!Array.isArray(media)) return [];
   return media.map((m) => ({ ...m, src: resolveAssetUrl(m.src) }));
 }

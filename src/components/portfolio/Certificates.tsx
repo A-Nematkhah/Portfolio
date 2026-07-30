@@ -1,12 +1,13 @@
-import { useCallback } from "react";
+import { useCallback, useState } from "react";
 import { m } from "framer-motion";
 import { ArrowRight, X, ExternalLink } from "lucide-react";
-import { useState } from "react";
 import { CERTIFICATES, type Certificate } from "@/data/content";
 import { useModalA11y } from "@/hooks/use-modal-a11y";
 
 export function Certificates() {
   const [active, setActive] = useState<Certificate | null>(null);
+  // Duplicate for a seamless infinite loop
+  const loop = [...CERTIFICATES, ...CERTIFICATES];
 
   return (
     <section id="certificates" className="py-20">
@@ -19,37 +20,39 @@ export function Certificates() {
         </p>
       </div>
 
-      <div className="mt-12 grid gap-6 md:grid-cols-3">
-        {CERTIFICATES.map((c, i) => (
-          <m.button
-            key={c.src}
-            data-lidar-object={c.title}
-            type="button"
-            onClick={() => setActive(c)}
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ delay: i * 0.08 }}
-            className="group relative block w-full overflow-hidden rounded-xl surface-card p-3 text-left hover:glow-primary"
-          >
-            <div className="overflow-hidden rounded-lg bg-muted">
-              <img
-                src={c.src}
-                alt={c.title}
-                width={c.width}
-                height={c.height}
-                loading="lazy"
-                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-            </div>
-            <div className="mt-3 flex items-center justify-between px-1">
-              <span className="text-xs font-medium text-muted-foreground">{c.issuer}</span>
-              <span className="inline-flex items-center gap-1 text-xs font-medium text-primary">
-                View <ArrowRight className="h-3 w-3" />
-              </span>
-            </div>
-          </m.button>
-        ))}
+      <div
+        className={`cert-marquee mt-12 ${active ? "is-paused" : ""}`}
+        data-lidar-object="CERTIFICATE RAIL"
+      >
+        <div className="cert-marquee-track">
+          {loop.map((c, i) => (
+            <button
+              key={`${c.certId}-${i}`}
+              type="button"
+              data-lidar-object={i < CERTIFICATES.length ? c.title : undefined}
+              onClick={() => setActive(c)}
+              className="cert-marquee-card group relative overflow-hidden rounded-xl surface-card p-3 text-left hover:glow-primary"
+            >
+              <div className="overflow-hidden rounded-lg bg-muted aspect-[16/11]">
+                <img
+                  src={c.src}
+                  alt={c.title}
+                  width={c.width}
+                  height={c.height}
+                  loading="lazy"
+                  draggable={false}
+                  className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="mt-3 flex items-center justify-between gap-2 px-1">
+                <span className="truncate text-xs font-medium text-muted-foreground">{c.issuer}</span>
+                <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary">
+                  View <ArrowRight className="h-3 w-3" />
+                </span>
+              </div>
+            </button>
+          ))}
+        </div>
       </div>
 
       <CertificateModal certificate={active} onClose={() => setActive(null)} />

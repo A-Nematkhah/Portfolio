@@ -491,6 +491,7 @@ export function ToolWall({
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [offsets, setOffsets] = useState<Record<string, PegOffset>>({});
   const [draggingId, setDraggingId] = useState<string | null>(null);
+  const [isSmUp, setIsSmUp] = useState(false);
   const boardRef = useRef<HTMLDivElement>(null);
   const reduceMotion = useRef(false);
   const dragRef = useRef<{
@@ -506,6 +507,11 @@ export function ToolWall({
   useEffect(() => {
     reduceMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     setOffsets(loadPegOffsets());
+    const mq = window.matchMedia("(min-width: 640px)");
+    setIsSmUp(mq.matches);
+    const onMq = () => setIsSmUp(mq.matches);
+    mq.addEventListener("change", onMq);
+    return () => mq.removeEventListener("change", onMq);
   }, []);
 
   const activeId = hoveredId ?? selectedId;
@@ -522,7 +528,7 @@ export function ToolWall({
   };
 
   const handleBoardPointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if (draggingId || reduceMotion.current || !boardRef.current) return;
+    if (!isSmUp || draggingId || reduceMotion.current || !boardRef.current) return;
     const rect = boardRef.current.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width - 0.5;
     const y = (e.clientY - rect.top) / rect.height - 0.5;
@@ -632,7 +638,7 @@ export function ToolWall({
           <span
             key={i}
             aria-hidden
-            className={`pointer-events-none absolute z-[6] h-[11px] w-[11px] rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.55)] ${EDGE_PIN_STYLE[p.color]}`}
+            className={`pegboard-edge-pin pointer-events-none absolute z-[6] h-[11px] w-[11px] rounded-full shadow-[0_2px_4px_rgba(0,0,0,0.45),inset_0_1px_1px_rgba(255,255,255,0.55)] ${EDGE_PIN_STYLE[p.color]}`}
             style={{ top: p.top, left: p.left, right: p.right }}
           />
         ))}
@@ -693,7 +699,9 @@ export function ToolWall({
                               style={{
                                 transform: isActive
                                   ? "translateY(-4px) rotate(0deg)"
-                                  : `rotate(${tool.tilt}deg)`,
+                                  : isSmUp
+                                    ? `rotate(${tool.tilt}deg)`
+                                    : undefined,
                               }}
                             >
                               <span

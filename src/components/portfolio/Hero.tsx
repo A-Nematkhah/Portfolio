@@ -21,8 +21,10 @@ export function Hero() {
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const isMdUp = window.matchMedia("(min-width: 768px)").matches;
 
-    if (reduce) {
+    // Skip boot sequence on small screens and reduced-motion
+    if (reduce || !isMdUp) {
       setBootState("done");
       return;
     }
@@ -61,7 +63,7 @@ export function Hero() {
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
               Mechatronics Engineer
             </p>
-            <h1 className="text-5xl font-bold leading-[1.05] md:text-7xl">
+            <h1 className="text-[2.35rem] font-bold leading-[1.05] min-[400px]:text-5xl md:text-7xl">
               Amirhossein
               <br />
               <span className="text-gradient-violet">Nematkhah</span>
@@ -107,7 +109,7 @@ export function Hero() {
             <div className="hero-spotlight" aria-hidden="true" />
             <div className="hero-vignette" aria-hidden="true" />
             <div
-              className={`hero-portrait-wrap relative z-10 mx-auto w-full max-w-md ${
+              className={`hero-portrait-wrap relative z-10 mx-auto w-full max-w-[14.5rem] sm:max-w-xs md:max-w-md ${
                 portraitReady ? "is-ready" : "is-scanning"
               }`}
             >

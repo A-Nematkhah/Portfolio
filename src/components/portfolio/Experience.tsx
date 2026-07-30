@@ -180,6 +180,60 @@ function GuideCar({
   );
 }
 
+function ExperienceCard({ e }: { e: (typeof EXPERIENCE)[number] }) {
+  return (
+    <div className="ir-checkpoint-card rounded-xl glass p-5 md:p-6">
+      <div className="flex items-start gap-3">
+        {e.logo ? (
+          <img
+            src={e.logo}
+            alt=""
+            className="mt-0.5 h-9 w-9 shrink-0 rounded-lg border border-border object-contain bg-background/80 p-1"
+          />
+        ) : e.current ? (
+          <div
+            className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-secondary/50 text-[10px] font-semibold tracking-wide text-primary"
+            aria-hidden
+            data-logo-placeholder="supishi"
+            title="Replace with Supishi logo"
+          >
+            SP
+          </div>
+        ) : null}
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-xs text-primary">{e.role}</p>
+            {e.current && (
+              <span className="rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-primary">
+                Current
+              </span>
+            )}
+          </div>
+          <h3 className="mt-1 text-lg font-semibold">{e.co}</h3>
+          {e.dept && <p className="mt-0.5 text-[11px] text-muted-foreground">{e.dept}</p>}
+        </div>
+      </div>
+      <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
+        {e.bullets.map((b) => (
+          <li key={b}>• {b}</li>
+        ))}
+      </ul>
+      {e.tags && e.tags.length > 0 && (
+        <div className="mt-4 flex flex-wrap gap-1.5">
+          {e.tags.map((tag) => (
+            <span
+              key={tag}
+              className="rounded-md border border-border bg-secondary/40 px-2 py-0.5 text-[10px] text-muted-foreground"
+            >
+              {tag}
+            </span>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export function Experience() {
   const trackRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
@@ -192,7 +246,11 @@ export function Experience() {
   const lastActive = useRef(-1);
   const reduceMotion = useRef(false);
 
-  const [tier, setTier] = useState<"desktop" | "tablet" | "mobile">("desktop");
+  const [tier, setTier] = useState<"desktop" | "tablet" | "mobile">(() => {
+    if (typeof window === "undefined") return "desktop";
+    const w = window.innerWidth;
+    return w < 640 ? "mobile" : w < 1024 ? "tablet" : "desktop";
+  });
   const [activeIdx, setActiveIdx] = useState(0);
   const [blink, setBlink] = useState(false);
   const [moving, setMoving] = useState(false);
@@ -228,6 +286,8 @@ export function Experience() {
   }, []);
 
   useEffect(() => {
+    if (tier === "mobile") return;
+
     const path = pathRef.current;
     const progressPath = progressRef.current;
     const progressGlow = progressGlowRef.current;
@@ -247,7 +307,7 @@ export function Experience() {
       const t = road.stops[i] ?? i / Math.max(1, EXPERIENCE.length - 1);
       const pt = path.getPointAtLength(t * total);
       nextMarkers.push(pt);
-      nextSides.push(tier === "mobile" ? "right" : i % 2 === 0 ? "left" : "right");
+      nextSides.push(i % 2 === 0 ? "left" : "right");
     }
     setMarkers(nextMarkers);
     setSides(nextSides);
@@ -360,10 +420,30 @@ export function Experience() {
         <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Experience</p>
         <h2 className="mt-3 text-4xl font-bold md:text-5xl">Industrial Timeline</h2>
         <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground">
-          Scroll to follow the route — each checkpoint is a stop on the engineering journey.
+          {tier === "mobile"
+            ? "Each stop on the engineering journey — from first industrial role to current R&D."
+            : "Scroll to follow the route — each checkpoint is a stop on the engineering journey."}
         </p>
       </div>
 
+      {tier === "mobile" ? (
+        <ol className="xp-mobile-timeline mt-10">
+          {EXPERIENCE.map((e, i) => (
+            <li key={e.co} className="xp-mobile-item" data-lidar-object={e.co}>
+              <div className="xp-mobile-rail" aria-hidden>
+                <span className={`xp-mobile-dot ${e.current ? "is-current" : ""}`} />
+              </div>
+              <div className="xp-mobile-body">
+                <div className="ir-checkpoint-meta">
+                  <span className="ir-checkpoint-year">{e.year}</span>
+                  <span className="ir-checkpoint-code">CP-{String(i + 1).padStart(2, "0")}</span>
+                </div>
+                <ExperienceCard e={e} />
+              </div>
+            </li>
+          ))}
+        </ol>
+      ) : (
       <div ref={trackRef} className="industrial-road relative mt-14">
         <svg
           className="industrial-road-svg"
@@ -397,7 +477,7 @@ export function Experience() {
             d={road.d}
             className="ir-road-ground"
             fill="none"
-            strokeWidth={tier === "mobile" ? 48 : 64}
+            strokeWidth={tier === "tablet" ? 54 : 64}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -406,7 +486,7 @@ export function Experience() {
             className="ir-road-shoulder"
             fill="none"
             stroke="url(#ir-road-curb)"
-            strokeWidth={tier === "mobile" ? 40 : 54}
+            strokeWidth={tier === "tablet" ? 46 : 54}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -414,7 +494,7 @@ export function Experience() {
             d={road.d}
             className="ir-road-rim"
             fill="none"
-            strokeWidth={tier === "mobile" ? 30 : 40}
+            strokeWidth={tier === "tablet" ? 34 : 40}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -423,7 +503,7 @@ export function Experience() {
             className="ir-road-bed"
             fill="none"
             stroke="url(#ir-road-asphalt)"
-            strokeWidth={tier === "mobile" ? 24 : 32}
+            strokeWidth={tier === "tablet" ? 28 : 32}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -431,7 +511,7 @@ export function Experience() {
             d={road.d}
             className="ir-road-lane"
             fill="none"
-            strokeWidth={tier === "mobile" ? 16 : 22}
+            strokeWidth={tier === "tablet" ? 18 : 22}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -440,7 +520,7 @@ export function Experience() {
             d={road.d}
             className="ir-road-base"
             fill="none"
-            strokeWidth={tier === "mobile" ? 2 : 2.75}
+            strokeWidth={tier === "tablet" ? 2.4 : 2.75}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -449,7 +529,7 @@ export function Experience() {
             d={road.d}
             className="ir-road-progress-glow"
             fill="none"
-            strokeWidth={tier === "mobile" ? 12 : 16}
+            strokeWidth={tier === "tablet" ? 14 : 16}
             strokeLinecap="round"
             strokeLinejoin="round"
             filter="url(#ir-progress-soft)"
@@ -459,7 +539,7 @@ export function Experience() {
             d={road.d}
             className="ir-road-progress"
             fill="none"
-            strokeWidth={tier === "mobile" ? 3.25 : 4.25}
+            strokeWidth={tier === "tablet" ? 3.6 : 4.25}
             strokeLinecap="round"
             strokeLinejoin="round"
           />
@@ -468,10 +548,10 @@ export function Experience() {
             d={road.d}
             className="ir-road-dash"
             fill="none"
-            strokeWidth={tier === "mobile" ? 2.4 : 3.1}
+            strokeWidth={tier === "tablet" ? 2.7 : 3.1}
             strokeLinecap="butt"
             strokeLinejoin="round"
-            strokeDasharray={tier === "mobile" ? "14 12" : "18 14"}
+            strokeDasharray={tier === "tablet" ? "16 13" : "18 14"}
           />
 
           {/* checkpoint markers on path */}
@@ -515,62 +595,13 @@ export function Experience() {
                   <span className="ir-checkpoint-year">{e.year}</span>
                   <span className="ir-checkpoint-code">CP-{String(i + 1).padStart(2, "0")}</span>
                 </div>
-                <div className="ir-checkpoint-card rounded-xl glass p-5 md:p-6">
-                  <div className="flex items-start gap-3">
-                    {e.logo ? (
-                      <img
-                        src={e.logo}
-                        alt=""
-                        className="mt-0.5 h-9 w-9 shrink-0 rounded-lg border border-border object-contain bg-background/80 p-1"
-                      />
-                    ) : e.current ? (
-                      <div
-                        className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-secondary/50 text-[10px] font-semibold tracking-wide text-primary"
-                        aria-hidden
-                        data-logo-placeholder="supishi"
-                        title="Replace with Supishi logo"
-                      >
-                        SP
-                      </div>
-                    ) : null}
-                    <div className="min-w-0 flex-1">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <p className="text-xs text-primary">{e.role}</p>
-                        {e.current && (
-                          <span className="rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-primary">
-                            Current
-                          </span>
-                        )}
-                      </div>
-                      <h3 className="mt-1 text-lg font-semibold">{e.co}</h3>
-                      {e.dept && (
-                        <p className="mt-0.5 text-[11px] text-muted-foreground">{e.dept}</p>
-                      )}
-                    </div>
-                  </div>
-                  <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-                    {e.bullets.map((b) => (
-                      <li key={b}>• {b}</li>
-                    ))}
-                  </ul>
-                  {e.tags && e.tags.length > 0 && (
-                    <div className="mt-4 flex flex-wrap gap-1.5">
-                      {e.tags.map((tag) => (
-                        <span
-                          key={tag}
-                          className="rounded-md border border-border bg-secondary/40 px-2 py-0.5 text-[10px] text-muted-foreground"
-                        >
-                          {tag}
-                        </span>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                <ExperienceCard e={e} />
               </div>
             );
           })}
         </div>
       </div>
+      )}
     </section>
   );
 }

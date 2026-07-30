@@ -22,6 +22,9 @@ export function Certificates() {
       </div>
 
       <CertRail paused={!!active} onOpen={setActive} />
+      <p className="cert-marquee-hint" aria-hidden="true">
+        Drag to browse · Auto-slides
+      </p>
 
       <CertificateModal certificate={active} onClose={() => setActive(null)} />
     </section>

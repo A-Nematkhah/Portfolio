@@ -113,7 +113,7 @@ export function PortfolioPage() {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="fixed bottom-8 right-8 z-30 grid h-11 w-11 place-items-center rounded-full glass text-primary hover:glow-primary transition-shadow"
+          className="fixed bottom-8 right-8 z-40 grid h-11 w-11 place-items-center rounded-full glass text-primary hover:glow-primary transition-shadow lg:right-28"
           aria-label="Scroll to top"
         >
           <ArrowUp className="h-4 w-4" />

@@ -108,7 +108,11 @@ export function PortfolioPage() {
         <RobotGuide />
 
         <a
-          href="#top"
+          href="#home"
+          onClick={(e) => {
+            e.preventDefault();
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          }}
           className="fixed bottom-8 right-8 z-30 grid h-11 w-11 place-items-center rounded-full glass text-primary hover:glow-primary transition-shadow"
           aria-label="Scroll to top"
         >

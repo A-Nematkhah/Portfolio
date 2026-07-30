@@ -47,7 +47,15 @@ export function Nav() {
             scrolled ? "is-scrolled h-14" : "h-16"
           }`}
         >
-          <a href="#top" className="flex items-center gap-2" onClick={() => setOpen(false)}>
+          <a
+            href="#home"
+            className="flex items-center gap-2"
+            onClick={(e) => {
+              setOpen(false);
+              e.preventDefault();
+              window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
             <div className="grid h-9 w-9 place-items-center rounded-md bg-primary/15 text-primary font-bold">
               <span className="font-display">AN</span>
             </div>

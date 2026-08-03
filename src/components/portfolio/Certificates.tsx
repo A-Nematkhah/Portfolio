@@ -3,7 +3,7 @@ import { m } from "framer-motion";
 import { ArrowRight, X, ExternalLink } from "lucide-react";
 import { CERTIFICATES, type Certificate } from "@/data/content";
 import { useModalA11y } from "@/hooks/use-modal-a11y";
-import { useT } from "@/i18n";
+import { useI18n, useT } from "@/i18n";
 
 const AUTO_PX_PER_SEC = 36;
 const RESUME_DELAY_MS = 1400;
@@ -65,13 +65,14 @@ function CertRail({
   const rafRef = useRef(0);
   const lastTsRef = useRef(0);
   const t = useT();
+  const { locale } = useI18n();
 
   const loop = [...CERTIFICATES, ...CERTIFICATES];
 
   const measure = useCallback(() => {
     const track = trackRef.current;
     if (!track) return;
-    // Half of duplicated track = one full set
+    // Half of duplicated track = one full set (requires LTR flex geometry)
     loopWidthRef.current = track.scrollWidth / 2;
   }, []);
 
@@ -85,6 +86,14 @@ function CertRail({
     offsetRef.current = x;
     track.style.transform = `translate3d(${-x}px, 0, 0)`;
   }, []);
+
+  useEffect(() => {
+    // Locale/dir switch can invalidate measured loop width — reset cleanly
+    offsetRef.current = 0;
+    lastTsRef.current = 0;
+    measure();
+    applyTransform();
+  }, [locale, measure, applyTransform]);
 
   useEffect(() => {
     reduceMotionRef.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
@@ -110,7 +119,7 @@ function CertRail({
         performance.now() >= resumeAtRef.current;
 
       if (autoAllowed && loopWidthRef.current > 0) {
-        // Positive offset → content moves left (RTL travel)
+        // Positive offset → content moves left; seamless because track is LTR-duplicated
         offsetRef.current += AUTO_PX_PER_SEC * dt;
         applyTransform();
       }

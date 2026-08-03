@@ -2,28 +2,16 @@ import { useEffect, useState, type CSSProperties } from "react";
 import { m } from "framer-motion";
 import { ArrowRight, Send, Github, Linkedin } from "lucide-react";
 import heroPortrait from "@/assets/amirhossein-hero-corrected-portrait.webp";
-
-const BOOT_LINES = [
-  "> loading profile... OK",
-  "> mechanical_design: ONLINE",
-  "> rl_agent: ONLINE",
-  "> systems_check: PASS",
-] as const;
-
-const STATS = [
-  { n: "12+", l: "Projects Completed" },
-  { n: "3+", l: "Years of Experience" },
-  { n: "15+", l: "Technologies" },
-] as const;
+import { useI18n } from "@/i18n";
 
 export function Hero() {
   const [bootState, setBootState] = useState<"running" | "done">("running");
+  const { t, formatNumber } = useI18n();
 
   useEffect(() => {
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     const isMdUp = window.matchMedia("(min-width: 768px)").matches;
 
-    // Skip boot sequence on small screens and reduced-motion
     if (reduce || !isMdUp) {
       setBootState("done");
       return;
@@ -35,6 +23,13 @@ export function Hero() {
 
   const showBoot = bootState === "running";
   const portraitReady = bootState === "done";
+
+  const bootLines = [t("hero.boot0"), t("hero.boot1"), t("hero.boot2"), t("hero.boot3")];
+  const stats = [
+    { n: formatNumber(t("hero.stats.projectsN")), l: t("hero.stats.projectsLabel") },
+    { n: formatNumber(t("hero.stats.experienceN")), l: t("hero.stats.experienceLabel") },
+    { n: formatNumber(t("hero.stats.technologiesN")), l: t("hero.stats.technologiesLabel") },
+  ];
 
   return (
     <section id="home" className="relative py-12 md:py-20 pt-0">
@@ -53,45 +48,50 @@ export function Hero() {
               className={`hero-boot-log ${showBoot ? "is-visible" : ""} ${portraitReady ? "is-done" : ""}`}
               aria-hidden="true"
             >
-              {BOOT_LINES.map((line, i) => (
-                <p key={line} className="hero-boot-line" style={{ "--boot-i": i } as CSSProperties}>
+              {bootLines.map((line, i) => (
+                <p key={i} className="hero-boot-line" style={{ "--boot-i": i } as CSSProperties}>
                   {line}
                 </p>
               ))}
             </div>
 
             <p className="mb-4 text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-              Mechatronics Engineer
+              {t("hero.eyebrow")}
             </p>
             <h1 className="text-[2.35rem] font-bold leading-[1.05] min-[400px]:text-5xl md:text-7xl">
-              Amirhossein
+              {t("hero.firstName")}
               <br />
-              <span className="text-gradient-violet">Nematkhah</span>
+              <span className="text-gradient-violet">{t("hero.lastName")}</span>
             </h1>
             <p className="mt-6 max-w-md text-base text-muted-foreground">
-              Mechanical Design • Industrial Systems • Project Control
+              {t("hero.tagline1")}
               <br />
-              AI &amp; Automation • Simulation &amp; Control
+              {t("hero.tagline2")}
             </p>
             <div className="mt-8 flex flex-wrap gap-3">
               <a href="#projects" className="btn-primary">
-                View My Work <ArrowRight className="h-4 w-4" />
+                {t("hero.ctaWork")} <ArrowRight className="h-4 w-4" />
               </a>
               <a href="#contact" className="btn-secondary">
-                Contact Me <Send className="h-4 w-4" />
+                {t("hero.ctaContact")} <Send className="h-4 w-4" />
               </a>
             </div>
             <div className="mt-8 flex gap-3">
               {[
-                { Icon: Github, href: "https://github.com/A-Nematkhah" },
-                { Icon: Linkedin, href: "https://www.linkedin.com/in/amirhossein-nematkhah" },
-                { Icon: Send, href: "mailto:a.h.nematkhah@gmail.com" },
-              ].map(({ Icon, href }, i) => (
+                { Icon: Github, href: "https://github.com/A-Nematkhah", label: "GitHub" },
+                {
+                  Icon: Linkedin,
+                  href: "https://www.linkedin.com/in/amirhossein-nematkhah",
+                  label: "LinkedIn",
+                },
+                { Icon: Send, href: "mailto:a.h.nematkhah@gmail.com", label: "Email" },
+              ].map(({ Icon, href, label }) => (
                 <a
-                  key={i}
+                  key={label}
                   href={href}
                   target="_blank"
                   rel="noreferrer"
+                  aria-label={label}
                   className="icon-chip grid h-10 w-10 place-items-center rounded-full glass text-foreground hover:text-primary"
                 >
                   <Icon className="h-4 w-4" />
@@ -115,7 +115,7 @@ export function Hero() {
             >
               <img
                 src={heroPortrait}
-                alt="Amirhossein Nematkhah, mechatronics engineer"
+                alt={t("hero.portraitAlt")}
                 width={765}
                 height={765}
                 fetchPriority="high"
@@ -126,7 +126,7 @@ export function Hero() {
             </div>
 
             <div className="hero-spec-strip relative z-10 mt-6" role="list">
-              {STATS.map((s) => (
+              {stats.map((s) => (
                 <div key={s.l} className="hero-spec-item" role="listitem">
                   <span className="hero-spec-value">{s.n}</span>
                   <span className="hero-spec-label">{s.l}</span>

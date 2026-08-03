@@ -1,14 +1,16 @@
 import { useEffect, useState } from "react";
 import { Download, Menu, Moon, Sun, X } from "lucide-react";
-import { NAV } from "@/data/content";
+import { NAV_ITEMS } from "@/data/content";
 import { pub } from "@/lib/pub";
 import { useTheme } from "@/components/theme/ThemeProvider";
+import { LanguageSwitcher, useI18n } from "@/i18n";
 
 export function Nav() {
   const [open, setOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [active, setActive] = useState(NAV[0]?.toLowerCase() ?? "home");
+  const [active, setActive] = useState<string>(NAV_ITEMS[0]?.id ?? "home");
   const { theme, toggleTheme } = useTheme();
+  const { t, locale, setLocale } = useI18n();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 24);
@@ -18,7 +20,7 @@ export function Nav() {
   }, []);
 
   useEffect(() => {
-    const ids = NAV.map((n) => n.toLowerCase());
+    const ids = NAV_ITEMS.map((n) => n.id);
     const sections = ids
       .map((id) => document.getElementById(id))
       .filter((el): el is HTMLElement => !!el);
@@ -62,43 +64,43 @@ export function Nav() {
           </a>
 
           <nav className="hidden items-center gap-8 md:flex">
-            {NAV.map((n) => {
-              const id = n.toLowerCase();
-              const isActive = active === id;
+            {NAV_ITEMS.map((n) => {
+              const isActive = active === n.id;
               return (
                 <a
-                  key={n}
-                  href={`#${id}`}
+                  key={n.id}
+                  href={`#${n.id}`}
                   className={`nav-link text-sm ${
                     isActive ? "is-active" : "text-muted-foreground hover:text-foreground"
                   }`}
                 >
-                  {n}
+                  {t(n.labelKey)}
                 </a>
               );
             })}
           </nav>
 
           <div className="flex items-center gap-2">
+            <LanguageSwitcher locale={locale} onChange={setLocale} className="hidden sm:inline-grid" />
             <button
               type="button"
               onClick={toggleTheme}
               className="grid h-10 w-10 place-items-center rounded-lg border border-border bg-secondary/30 text-muted-foreground transition hover:border-primary/40 hover:text-foreground"
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+              aria-label={theme === "dark" ? t("nav.themeToLight") : t("nav.themeToDark")}
             >
               {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
             </button>
             <a
               href={pub("/cv.pdf")}
               download="Amirhossein-Nematkhah-CV.pdf"
-              className="btn-secondary hidden !px-4 !py-2 sm:inline-flex"
+              className="btn-secondary hidden !px-4 !py-2 lg:inline-flex"
             >
-              Download CV <Download className="h-4 w-4" />
+              {t("nav.downloadCv")} <Download className="h-4 w-4" />
             </a>
             <button
               type="button"
               className="grid h-10 w-10 place-items-center rounded-lg border border-border md:hidden"
-              aria-label={open ? "Close menu" : "Open menu"}
+              aria-label={open ? t("nav.closeMenu") : t("nav.openMenu")}
               aria-expanded={open}
               onClick={() => setOpen((v) => !v)}
             >
@@ -109,30 +111,30 @@ export function Nav() {
 
         {open && (
           <nav className="mt-2 flex flex-col gap-1 rounded-xl glass p-3 md:hidden">
-            {NAV.map((n) => {
-              const id = n.toLowerCase();
-              return (
-                <a
-                  key={n}
-                  href={`#${id}`}
-                  onClick={() => setOpen(false)}
-                  className={`rounded-lg px-3 py-2.5 text-sm transition-colors ${
-                    active === id
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
-                  }`}
-                >
-                  {n}
-                </a>
-              );
-            })}
+            <div className="mb-1 flex justify-center px-1 py-1">
+              <LanguageSwitcher locale={locale} onChange={setLocale} />
+            </div>
+            {NAV_ITEMS.map((n) => (
+              <a
+                key={n.id}
+                href={`#${n.id}`}
+                onClick={() => setOpen(false)}
+                className={`rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                  active === n.id
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-secondary/50 hover:text-foreground"
+                }`}
+              >
+                {t(n.labelKey)}
+              </a>
+            ))}
             <a
               href={pub("/cv.pdf")}
               download="Amirhossein-Nematkhah-CV.pdf"
               onClick={() => setOpen(false)}
               className="btn-secondary mt-1 inline-flex justify-center !px-3 !py-2.5"
             >
-              Download CV <Download className="h-4 w-4" />
+              {t("nav.downloadCv")} <Download className="h-4 w-4" />
             </a>
           </nav>
         )}

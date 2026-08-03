@@ -32,6 +32,7 @@ import {
   Cpu,
   BrainCircuit,
 } from "lucide-react";
+import { useI18n } from "@/i18n";
 
 /**
  * Engineering Tool Wall — framed pegboard panel with original skill
@@ -55,10 +56,10 @@ export type ToolItem = {
 
 export type ProjectRef = { title: string; tool: string; cat: string };
 
-const DOMAINS: { id: ToolDomainId; label: string; icon: typeof Box }[] = [
-  { id: "mechanical", label: "Mechanical Engineering", icon: Boxes },
-  { id: "robotics", label: "Robotics & Automation", icon: Cpu },
-  { id: "ai", label: "AI & Intelligent Systems", icon: BrainCircuit },
+const DOMAINS: { id: ToolDomainId; icon: typeof Box }[] = [
+  { id: "mechanical", icon: Boxes },
+  { id: "robotics", icon: Cpu },
+  { id: "ai", icon: BrainCircuit },
 ];
 
 type GutterTool = {
@@ -487,6 +488,23 @@ export function ToolWall({
   projects: ProjectRef[];
   onExploreProjects: (category: string) => void;
 }) {
+  const { t, formatNumber } = useI18n();
+  const localizeTool = (tool: ToolItem) => ({
+    // Keep skill/tool product names in English in both locales
+    name: tool.name,
+    categoryTag: t(`toolWall.tools.${tool.id}.categoryTag`),
+    usedFor: [
+      t(`toolWall.tools.${tool.id}.u0`),
+      t(`toolWall.tools.${tool.id}.u1`),
+      t(`toolWall.tools.${tool.id}.u2`),
+    ],
+  });
+  const pegAlt = (id: string, fallback: string) => {
+    const key = `toolWall.pegs.${id}`;
+    const value = t(key);
+    return value === key ? fallback : value;
+  };
+
   const [hoveredId, setHoveredId] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [offsets, setOffsets] = useState<Record<string, PegOffset>>({});
@@ -610,15 +628,14 @@ export function ToolWall({
     <section id="skills" className="toolwall-section py-14 md:py-20">
       <div data-lidar-object="TOOL WALL" className="mx-auto max-w-3xl text-center">
         <p className="text-[11px] font-semibold uppercase tracking-[0.28em]">
-          <span className="text-primary">Engineering Tool Wall</span>
-          <span className="text-muted-foreground"> / Skills</span>
+          <span className="text-primary">{t("toolWall.eyebrowBrand")}</span>
+          <span className="text-muted-foreground"> {t("toolWall.eyebrowSkills")}</span>
         </p>
         <h2 className="mt-3 font-display text-4xl font-bold tracking-tight text-foreground md:text-[2.75rem]">
-          My Engineering Toolkit.
+          {t("toolWall.title")}
         </h2>
         <p className="mx-auto mt-4 max-w-xl text-[15px] leading-relaxed text-muted-foreground">
-          The tools I use to design mechanical systems, build robots, simulate complex environments,
-          and develop intelligent autonomous systems.
+          {t("toolWall.subtitle")}
         </p>
       </div>
 
@@ -651,7 +668,7 @@ export function ToolWall({
               className="rounded-md border border-[color:var(--panel-border)] px-2.5 py-1 text-[10px] font-medium uppercase tracking-[0.14em] backdrop-blur-sm transition hover:border-primary/30"
               style={{ background: "var(--reset-btn-bg)", color: "var(--reset-btn-text)" }}
             >
-              Reset tools
+              {t("toolWall.reset")}
             </button>
           </div>
 
@@ -666,7 +683,7 @@ export function ToolWall({
                   <div className="flex items-center gap-2.5 pb-2">
                     <DomainIcon className="h-4 w-4 text-foreground" strokeWidth={1.9} />
                     <h3 className="font-display text-[13px] font-bold uppercase tracking-[0.12em] text-foreground">
-                      {domain.label}
+                      {t(`toolWall.domains.${domain.id}`)}
                     </h3>
                     <span className="ml-1.5 h-px flex-1 bg-foreground/20" aria-hidden />
                   </div>
@@ -677,6 +694,7 @@ export function ToolWall({
                         const isActive = activeId === tool.id;
                         const isSelected = selectedId === tool.id;
                         const Icon = tool.icon;
+                        const loc = localizeTool(tool);
                         const { gridColumn, gridRow } = cardPlacement(i);
                         return (
                           <div
@@ -686,16 +704,19 @@ export function ToolWall({
                           >
                             <button
                               type="button"
-                              data-lidar-object={tool.name}
+                              data-lidar-object={loc.name}
                               aria-pressed={isSelected}
-                              aria-label={`${tool.name} — ${tool.categoryTag}. ${isSelected ? "Selected. " : ""}Press to inspect.`}
+                              aria-label={t("toolWall.aria.inspect", {
+                                name: loc.name,
+                                tag: loc.categoryTag,
+                              })}
                               onClick={() => toggleSelect(tool.id)}
                               onMouseEnter={() => setHoveredId(tool.id)}
                               onMouseLeave={() => setHoveredId(null)}
                               onFocus={() => setHoveredId(tool.id)}
                               onBlur={() => setHoveredId(null)}
                               onKeyDown={(e) => handleKeyDown(e, tool.id)}
-                              className={`skill-card group relative flex w-full flex-col rounded-[14px] px-3 py-2.5 text-left outline-none ${isSelected ? "tool-plate-selected" : ""}`}
+                              className={`skill-card group relative flex w-full flex-col rounded-[14px] px-3 py-2.5 text-start outline-none ${isSelected ? "tool-plate-selected" : ""}`}
                               style={{
                                 transform: isActive
                                   ? "translateY(-4px) rotate(0deg)"
@@ -705,7 +726,7 @@ export function ToolWall({
                               }}
                             >
                               <span
-                                className={`absolute right-[11px] top-[10px] h-[7px] w-[7px] rounded-full ${STATUS_STYLE[tool.status]}`}
+                                className={`absolute end-[11px] top-[10px] h-[7px] w-[7px] rounded-full ${STATUS_STYLE[tool.status]}`}
                                 aria-hidden
                               />
                               <span className="flex items-start gap-2">
@@ -714,31 +735,31 @@ export function ToolWall({
                                   strokeWidth={1.7}
                                 />
                                 <span className="font-display text-[13.5px] font-bold leading-tight text-foreground">
-                                  {tool.name}
+                                  {loc.name}
                                 </span>
                               </span>
-                              <span className="ml-[27px] mt-1 text-[11px] leading-snug text-muted-foreground">
-                                {tool.categoryTag}
+                              <span className="ms-[27px] mt-1 text-[11px] leading-snug text-muted-foreground">
+                                {loc.categoryTag}
                               </span>
                             </button>
 
                             {isActive && (
                               <div className="tool-tooltip pointer-events-none absolute bottom-full left-1/2 z-20 mb-4 hidden w-52 -translate-x-1/2 md:block">
                                 <p className="font-mono text-[9px] tracking-[0.2em] text-primary/90">
-                                  TOOL DETECTED
+                                  {t("toolWall.panel.detected")}
                                 </p>
                                 <p className="mt-1 font-display text-sm font-semibold text-foreground">
-                                  {tool.name}
+                                  {loc.name}
                                 </p>
                                 <p className="mt-2 font-mono text-[9px] tracking-[0.15em] text-muted-foreground">
-                                  CATEGORY
+                                  {t("toolWall.panel.category")}
                                 </p>
-                                <p className="text-xs text-foreground/80">{tool.categoryTag}</p>
+                                <p className="text-xs text-foreground/80">{loc.categoryTag}</p>
                                 <p className="mt-2 font-mono text-[9px] tracking-[0.15em] text-muted-foreground">
-                                  USED FOR
+                                  {t("toolWall.panel.usedFor")}
                                 </p>
                                 <ul className="text-xs text-foreground/80">
-                                  {tool.usedFor.map((u) => (
+                                  {loc.usedFor.map((u) => (
                                     <li key={u}>{u}</li>
                                   ))}
                                 </ul>
@@ -757,7 +778,7 @@ export function ToolWall({
                         >
                           <button
                             type="button"
-                            aria-label={`Move ${g.alt}`}
+                            aria-label={t("toolWall.aria.move", { alt: pegAlt(g.id, g.alt) })}
                             className={`peg-draggable-inline absolute left-1/2 top-1/2 ${draggingId === g.id ? "is-dragging" : ""}`}
                             style={{
                               transform: pegTransform(g.id, g.rotate, g.rot90, true, g.nudgeY),
@@ -783,7 +804,7 @@ export function ToolWall({
                       <div className="absolute bottom-0 left-1/2 z-[3] hidden -translate-x-1/2 overflow-visible sm:block">
                         <button
                           type="button"
-                          aria-label={`Move ${below.alt}`}
+                            aria-label={t("toolWall.aria.move", { alt: pegAlt(below.id, below.alt) })}
                           className={`peg-draggable-inline ${draggingId === below.id ? "is-dragging" : ""}`}
                           onPointerDown={(e) => onPegPointerDown(e, below.id)}
                           onPointerMove={onPegPointerMove}
@@ -807,7 +828,7 @@ export function ToolWall({
                       <div className="absolute right-[-30px] top-1 z-[3] hidden overflow-visible sm:block">
                         <button
                           type="button"
-                          aria-label={`Move ${margin.alt}`}
+                            aria-label={t("toolWall.aria.move", { alt: pegAlt(margin.id, margin.alt) })}
                           className={`peg-draggable-inline ${draggingId === margin.id ? "is-dragging" : ""}`}
                           onPointerDown={(e) => onPegPointerDown(e, margin.id)}
                           onPointerMove={onPegPointerMove}
@@ -840,22 +861,26 @@ export function ToolWall({
                         animate={{ opacity: 1, y: 0 }}
                         transition={{ duration: 0.25 }}
                       >
+                        {(() => {
+                          const loc = localizeTool(selectedTool);
+                          return (
+                        <>
                         <div className="flex items-start justify-between gap-4">
                           <div>
                             <p className="font-mono text-[10px] tracking-[0.25em] text-primary/90">
-                              TOOL DETECTED
+                              {t("toolWall.panel.detected")}
                             </p>
                             <h4 className="mt-1 font-display text-lg font-semibold text-foreground">
-                              {selectedTool.name}
+                              {loc.name}
                             </h4>
                             <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-                              {selectedTool.categoryTag}
+                              {loc.categoryTag}
                             </p>
                           </div>
                           <button
                             type="button"
                             onClick={() => setSelectedId(null)}
-                            aria-label="Close inspection panel"
+                            aria-label={t("toolWall.panel.close")}
                             className="rounded-md p-1.5 text-muted-foreground transition hover:bg-secondary/60 hover:text-foreground"
                           >
                             <X className="h-4 w-4" />
@@ -865,10 +890,10 @@ export function ToolWall({
                         <div className="mt-4 grid gap-6 sm:grid-cols-2">
                           <div>
                             <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-                              USED FOR
+                              {t("toolWall.panel.usedFor")}
                             </p>
                             <ul className="mt-2 space-y-1 text-sm text-foreground/80">
-                              {selectedTool.usedFor.map((u) => (
+                              {loc.usedFor.map((u) => (
                                 <li key={u} className="flex items-center gap-2">
                                   <CircleDot className="h-3 w-3 text-primary/80" />
                                   {u}
@@ -878,9 +903,9 @@ export function ToolWall({
                           </div>
                           <div>
                             <p className="font-mono text-[10px] tracking-[0.2em] text-muted-foreground">
-                              CONNECTED PROJECTS{" "}
+                              {t("toolWall.panel.connected")}{" "}
                               <span className="text-foreground/70">
-                                {String(connectedProjects.length).padStart(2, "0")}
+                                {formatNumber(String(connectedProjects.length).padStart(2, "0"))}
                               </span>
                             </p>
                             {connectedProjects.length > 0 ? (
@@ -891,7 +916,7 @@ export function ToolWall({
                               </ul>
                             ) : (
                               <p className="mt-2 text-sm text-muted-foreground">
-                                No linked projects yet — check back soon.
+                                {t("toolWall.panel.noProjects")}
                               </p>
                             )}
                             {selectedTool.filterCategory && (
@@ -900,11 +925,14 @@ export function ToolWall({
                                 onClick={() => onExploreProjects(selectedTool.filterCategory!)}
                                 className="mt-3 inline-flex items-center gap-1 rounded-md border border-primary/40 bg-primary/15 px-3 py-1.5 text-xs font-medium text-primary transition hover:bg-primary/25"
                               >
-                                Explore related projects <ArrowUpRight className="h-3.5 w-3.5" />
+                                {t("toolWall.panel.explore")} <ArrowUpRight className="h-3.5 w-3.5" />
                               </button>
                             )}
                           </div>
                         </div>
+                        </>
+                          );
+                        })()}
                       </m.div>
                     </div>
                   )}
@@ -914,7 +942,7 @@ export function ToolWall({
           </div>
 
           <div className="pegboard-quote relative z-[2]">
-            <p>Precision in tools, and in ideas, builds impact in engineering.</p>
+            <p>{t("toolWall.quote")}</p>
           </div>
         </div>
       </div>

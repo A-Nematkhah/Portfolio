@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { EXPERIENCE } from "@/data/content";
+import { EXPERIENCE, type ExperienceItem } from "@/data/content";
+import { useI18n } from "@/i18n";
 
 const VIEW_W = 1000;
 const PAD_Y = 72;
@@ -180,7 +181,14 @@ function GuideCar({
   );
 }
 
-function ExperienceCard({ e }: { e: (typeof EXPERIENCE)[number] }) {
+function ExperienceCard({ e }: { e: ExperienceItem }) {
+  const { t } = useI18n();
+  const base = `experience.items.${e.id}`;
+  const role = t(`${base}.role`);
+  const co = t(`${base}.co`);
+  const dept = e.dept ? t(`${base}.dept`) : undefined;
+  const bullets = e.bullets.map((_, i) => t(`${base}.b${i}`));
+
   return (
     <div className="ir-checkpoint-card rounded-xl glass p-5 md:p-6">
       <div className="flex items-start gap-3">
@@ -195,26 +203,26 @@ function ExperienceCard({ e }: { e: (typeof EXPERIENCE)[number] }) {
             className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-lg border border-border bg-secondary/50 text-[10px] font-semibold tracking-wide text-primary"
             aria-hidden
             data-logo-placeholder="supishi"
-            title="Replace with Supishi logo"
+            title={t("experience.logoPlaceholder")}
           >
             SP
           </div>
         ) : null}
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
-            <p className="text-xs text-primary">{e.role}</p>
+            <p className="text-xs text-primary">{role}</p>
             {e.current && (
               <span className="rounded-md border border-primary/30 bg-primary/10 px-2 py-0.5 text-[10px] font-medium uppercase tracking-[0.12em] text-primary">
-                Current
+                {t("experience.currentBadge")}
               </span>
             )}
           </div>
-          <h3 className="mt-1 text-lg font-semibold">{e.co}</h3>
-          {e.dept && <p className="mt-0.5 text-[11px] text-muted-foreground">{e.dept}</p>}
+          <h3 className="mt-1 text-lg font-semibold">{co}</h3>
+          {dept && <p className="mt-0.5 text-[11px] text-muted-foreground">{dept}</p>}
         </div>
       </div>
       <ul className="mt-3 space-y-1 text-xs text-muted-foreground">
-        {e.bullets.map((b) => (
+        {bullets.map((b) => (
           <li key={b}>• {b}</li>
         ))}
       </ul>
@@ -235,6 +243,7 @@ function ExperienceCard({ e }: { e: (typeof EXPERIENCE)[number] }) {
 }
 
 export function Experience() {
+  const { t, formatNumber } = useI18n();
   const trackRef = useRef<HTMLDivElement>(null);
   const pathRef = useRef<SVGPathElement>(null);
   const progressRef = useRef<SVGPathElement>(null);
@@ -417,31 +426,37 @@ export function Experience() {
   return (
     <section id="experience" className="py-20">
       <div data-lidar-object="CAREER TIMELINE" className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Experience</p>
-        <h2 className="mt-3 text-4xl font-bold md:text-5xl">Industrial Timeline</h2>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+          {t("experience.eyebrow")}
+        </p>
+        <h2 className="mt-3 text-4xl font-bold md:text-5xl">{t("experience.title")}</h2>
         <p className="mx-auto mt-4 max-w-lg text-sm text-muted-foreground">
-          {tier === "mobile"
-            ? "Each stop on the engineering journey — from first industrial role to current R&D."
-            : "Scroll to follow the route — each checkpoint is a stop on the engineering journey."}
+          {tier === "mobile" ? t("experience.subtitleMobile") : t("experience.subtitleDesktop")}
         </p>
       </div>
 
       {tier === "mobile" ? (
         <ol className="xp-mobile-timeline mt-10">
-          {EXPERIENCE.map((e, i) => (
-            <li key={e.co} className="xp-mobile-item" data-lidar-object={e.co}>
+          {EXPERIENCE.map((e, i) => {
+            const co = t(`experience.items.${e.id}.co`);
+            const year = t(`experience.items.${e.id}.year`);
+            return (
+            <li key={e.id} className="xp-mobile-item" data-lidar-object={co}>
               <div className="xp-mobile-rail" aria-hidden>
                 <span className={`xp-mobile-dot ${e.current ? "is-current" : ""}`} />
               </div>
               <div className="xp-mobile-body">
                 <div className="ir-checkpoint-meta">
-                  <span className="ir-checkpoint-year">{e.year}</span>
-                  <span className="ir-checkpoint-code">CP-{String(i + 1).padStart(2, "0")}</span>
+                  <span className="ir-checkpoint-year">{year}</span>
+                  <span className="ir-checkpoint-code">
+                    CP-{formatNumber(String(i + 1).padStart(2, "0"))}
+                  </span>
                 </div>
                 <ExperienceCard e={e} />
               </div>
             </li>
-          ))}
+            );
+          })}
         </ol>
       ) : (
       <div ref={trackRef} className="industrial-road relative mt-14">
@@ -556,7 +571,7 @@ export function Experience() {
 
           {/* checkpoint markers on path */}
           {markers.map((pt, i) => (
-            <g key={`mk-${EXPERIENCE[i].co}`} transform={`translate(${pt.x}, ${pt.y})`}>
+            <g key={`mk-${EXPERIENCE[i].id}`} transform={`translate(${pt.x}, ${pt.y})`}>
               <circle
                 r={activeIdx === i ? 9 : 7}
                 className={`ir-marker-ring ${activeIdx === i ? "is-active" : ""}`}
@@ -584,16 +599,20 @@ export function Experience() {
             const side = sides[i] ?? (i % 2 === 0 ? "left" : "right");
             const topPct = (pt.y / road.height) * 100;
             const active = activeIdx === i;
+            const co = t(`experience.items.${e.id}.co`);
+            const year = t(`experience.items.${e.id}.year`);
             return (
               <div
-                key={e.co}
+                key={e.id}
                 className={`ir-checkpoint ${side} ${active ? "is-active" : ""}`}
                 style={{ top: `${topPct}%` }}
-                data-lidar-object={e.co}
+                data-lidar-object={co}
               >
                 <div className="ir-checkpoint-meta">
-                  <span className="ir-checkpoint-year">{e.year}</span>
-                  <span className="ir-checkpoint-code">CP-{String(i + 1).padStart(2, "0")}</span>
+                  <span className="ir-checkpoint-year">{year}</span>
+                  <span className="ir-checkpoint-code">
+                    CP-{formatNumber(String(i + 1).padStart(2, "0"))}
+                  </span>
                 </div>
                 <ExperienceCard e={e} />
               </div>

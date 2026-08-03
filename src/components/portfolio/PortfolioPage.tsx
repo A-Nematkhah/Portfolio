@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+﻿import { useEffect, useMemo, useState } from "react";
 import { LazyMotion, domAnimation } from "framer-motion";
 import { useQuery } from "@tanstack/react-query";
 import { ArrowUp } from "lucide-react";
@@ -19,6 +19,8 @@ import { Research } from "@/components/portfolio/Research";
 import { Certificates } from "@/components/portfolio/Certificates";
 import { Contact } from "@/components/portfolio/Contact";
 import { Footer } from "@/components/portfolio/Footer";
+import { useI18n } from "@/i18n";
+import { localizeProject } from "@/i18n/localize";
 
 export const projectsQueryOptions = () => ({
   queryKey: ["projects"] as const,
@@ -52,11 +54,17 @@ export function PortfolioPage() {
   const [filter, setFilter] = useState("All");
   const { isAdmin } = useAuth();
   const { data: dbProjects = [] } = useQuery(projectsQueryOptions());
+  const { t, locale } = useI18n();
+  const [fadeClass, setFadeClass] = useState("");
+
+  useEffect(() => {
+    setFadeClass("i18n-fade");
+    const id = window.setTimeout(() => setFadeClass(""), 320);
+    return () => window.clearTimeout(id);
+  }, [locale]);
 
   const allProjects: Project[] = useMemo(() => {
     const mapped = dbProjects.map(mapDbProject);
-    // CMS purity: when DB has rows, prefer them and only keep static
-    // catalog items whose title is not already seeded/managed in DB.
     if (mapped.length === 0) return PROJECTS;
     const dbTitles = new Set(mapped.map((p) => p.title.toLowerCase()));
     const extras = PROJECTS.filter((p) => !dbTitles.has(p.title.toLowerCase()));
@@ -71,8 +79,12 @@ export function PortfolioPage() {
   };
 
   const projectRefs = useMemo(
-    () => allProjects.map((p) => ({ title: p.title, tool: p.tool, cat: p.cat })),
-    [allProjects],
+    () =>
+      allProjects.map((p) => {
+        const copy = localizeProject(t, p);
+        return { title: copy.title, tool: p.tool, cat: p.cat };
+      }),
+    [allProjects, t, locale],
   );
 
   return (
@@ -80,18 +92,18 @@ export function PortfolioPage() {
       <div className="workspace-noise relative min-h-screen overflow-x-hidden bg-transparent text-foreground">
         <BlueprintBackground />
         <div
-          className="pointer-events-none fixed -top-40 right-0 h-[500px] w-[500px] rounded-full bg-primary/[0.07] blur-[100px] will-change-transform dark:bg-primary/[0.05]"
+          className="pointer-events-none fixed -top-40 end-0 h-[500px] w-[500px] rounded-full bg-primary/[0.07] blur-[100px] will-change-transform dark:bg-primary/[0.05]"
           style={{ transform: "translateZ(0)" }}
         />
         <div
-          className="pointer-events-none fixed -bottom-32 -left-20 h-[420px] w-[420px] rounded-full blur-[110px] will-change-transform"
+          className="pointer-events-none fixed -bottom-32 -start-20 h-[420px] w-[420px] rounded-full blur-[110px] will-change-transform"
           style={{ transform: "translateZ(0)", background: "var(--ambient-b)" }}
           aria-hidden
         />
 
         <Nav />
 
-        <main className="relative mx-auto max-w-7xl px-6 pt-[50px]">
+        <main className={`relative mx-auto max-w-7xl px-6 pt-[50px] ${fadeClass}`}>
           <Hero />
           <About />
           <Projects filter={filter} setFilter={setFilter} list={filtered} isAdmin={isAdmin} />
@@ -113,8 +125,8 @@ export function PortfolioPage() {
             e.preventDefault();
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
-          className="fixed bottom-8 right-8 z-40 grid h-11 w-11 place-items-center rounded-full glass text-primary hover:glow-primary transition-shadow lg:right-28"
-          aria-label="Scroll to top"
+          className="fixed bottom-8 right-8 z-40 grid h-11 w-11 place-items-center rounded-full glass text-primary hover:glow-primary transition-shadow ltr:lg:right-28"
+          aria-label={t("common.scrollToTop")}
         >
           <ArrowUp className="h-4 w-4" />
         </a>

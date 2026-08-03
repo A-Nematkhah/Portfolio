@@ -10,26 +10,28 @@ import {
 import { Toaster } from "@/components/ui/sonner";
 import { LidarCursor } from "@/components/effects/LidarCursor";
 import { ThemeProvider } from "@/components/theme/ThemeProvider";
+import { I18nProvider, useT } from "@/i18n";
 
 import appCss from "../styles.css?url";
 
 const themeInitScript = `(function(){try{var k='portfolio-theme';var t=localStorage.getItem(k);var d=t==='light'?false:t==='dark'?true:true;var r=document.documentElement;r.classList.toggle('dark',d);r.dataset.theme=d?'dark':'light';r.style.colorScheme=d?'dark':'light';}catch(e){document.documentElement.classList.add('dark');document.documentElement.dataset.theme='dark';}})();`;
 
+const localeInitScript = `(function(){try{var k='portfolio-locale';var l=localStorage.getItem(k);if(l!=='en'&&l!=='fa')l='en';var r=document.documentElement;r.lang=l==='fa'?'fa':'en';r.dir=l==='fa'?'rtl':'ltr';r.dataset.locale=l;}catch(e){}})();`;
+
 function NotFoundComponent() {
+  const t = useT();
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-7xl font-bold text-foreground">404</h1>
-        <h2 className="mt-4 text-xl font-semibold text-foreground">Page not found</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          The page you're looking for doesn't exist or has been moved.
-        </p>
+        <h1 className="text-7xl font-bold text-foreground">{t("notFound.code")}</h1>
+        <h2 className="mt-4 text-xl font-semibold text-foreground">{t("notFound.title")}</h2>
+        <p className="mt-2 text-sm text-muted-foreground">{t("notFound.body")}</p>
         <div className="mt-6">
           <Link
             to="/"
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Go home
+            {t("notFound.goHome")}
           </Link>
         </div>
       </div>
@@ -40,16 +42,13 @@ function NotFoundComponent() {
 function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
+  const t = useT();
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
       <div className="max-w-md text-center">
-        <h1 className="text-xl font-semibold tracking-tight text-foreground">
-          This page didn't load
-        </h1>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Something went wrong on our end. You can try refreshing or head back home.
-        </p>
+        <h1 className="text-xl font-semibold tracking-tight text-foreground">{t("error.title")}</h1>
+        <p className="mt-2 text-sm text-muted-foreground">{t("error.body")}</p>
         <div className="mt-6 flex flex-wrap justify-center gap-2">
           <button
             onClick={() => {
@@ -58,13 +57,13 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
             }}
             className="inline-flex items-center justify-center rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground transition-colors hover:bg-primary/90"
           >
-            Try again
+            {t("error.retry")}
           </button>
           <a
             href="/"
             className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground transition-colors hover:bg-accent"
           >
-            Go home
+            {t("error.goHome")}
           </a>
         </div>
       </div>
@@ -112,10 +111,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         rel: "stylesheet",
         href: appCss,
       },
-      // Browsers default to requesting /favicon.ico at the domain root, which
-      // 404s on a GitHub Pages project site (served under /<repo-name>/).
-      // An explicit, base-aware link fixes that for both project and user sites.
       { rel: "icon", href: `${import.meta.env.BASE_URL}favicon.ico` },
+      { rel: "preconnect", href: "https://fonts.googleapis.com" },
+      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+      {
+        rel: "stylesheet",
+        href: "https://fonts.googleapis.com/css2?family=Vazirmatn:wght@400;500;600;700&display=swap",
+      },
       { rel: "preconnect", href: "https://kzmhlwjargbylkxlbdvt.supabase.co" },
       { rel: "dns-prefetch", href: "https://kzmhlwjargbylkxlbdvt.supabase.co" },
     ],
@@ -132,6 +134,7 @@ function RootShell({ children }: { children: React.ReactNode }) {
       <head>
         <HeadContent />
         <script dangerouslySetInnerHTML={{ __html: themeInitScript }} />
+        <script dangerouslySetInnerHTML={{ __html: localeInitScript }} />
       </head>
       <body className="workspace-atmosphere">
         {children}
@@ -146,11 +149,13 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <ThemeProvider>
-        <Outlet />
-        <Toaster position="top-right" />
-        <LidarCursor />
-      </ThemeProvider>
+      <I18nProvider>
+        <ThemeProvider>
+          <Outlet />
+          <Toaster position="top-right" />
+          <LidarCursor />
+        </ThemeProvider>
+      </I18nProvider>
     </QueryClientProvider>
   );
 }

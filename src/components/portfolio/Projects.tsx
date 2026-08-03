@@ -25,6 +25,8 @@ import { useInView } from "@/hooks/use-in-view";
 import { useModalA11y } from "@/hooks/use-modal-a11y";
 import { deleteProject, toThumbUrl, thumbSrcSet, type DbProject } from "@/lib/db-projects";
 import { FILTERS, type MediaItem, type Project } from "@/data/projects";
+import { useI18n } from "@/i18n";
+import { localizeFilterLabel, localizeProject } from "@/i18n/localize";
 
 const ProjectEditor = lazy(() =>
   import("@/components/admin/ProjectEditor").then((mod) => ({ default: mod.ProjectEditor })),
@@ -62,10 +64,11 @@ export function Projects({
   const [editing, setEditing] = useState<Partial<DbProject> | null>(null);
   const [creating, setCreating] = useState(false);
   const queryClient = useQueryClient();
+  const { t } = useI18n();
   const refetch = () => queryClient.invalidateQueries({ queryKey: ["projects"] });
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Delete this project? This cannot be undone.")) return;
+    if (!confirm(t("projects.deleteConfirm"))) return;
     await deleteProject(id);
     refetch();
   };
@@ -73,8 +76,10 @@ export function Projects({
   return (
     <section id="projects" className="py-20 pt-[10px]">
       <div data-lidar-object="PROJECT ARCHIVE" className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Portfolio</p>
-        <h2 className="mt-3 text-4xl font-bold md:text-5xl">Featured Projects</h2>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+          {t("projects.eyebrow")}
+        </p>
+        <h2 className="mt-3 text-4xl font-bold md:text-5xl">{t("projects.title")}</h2>
       </div>
 
       <div className="mt-10 flex flex-wrap justify-center gap-2">
@@ -88,7 +93,7 @@ export function Projects({
                 : "border border-border bg-secondary/40 text-muted-foreground hover:text-foreground"
             }`}
           >
-            {f}
+            {localizeFilterLabel(t, f)}
           </button>
         ))}
         {isAdmin && (
@@ -96,7 +101,7 @@ export function Projects({
             onClick={() => setCreating(true)}
             className="inline-flex items-center gap-1 rounded-lg border border-dashed border-primary/60 bg-primary/10 px-4 py-2 text-sm font-medium text-primary hover:bg-primary/20 transition"
           >
-            <Plus className="h-4 w-4" /> Add Project
+            <Plus className="h-4 w-4" /> {t("projects.adminAdd")}
           </button>
         )}
       </div>
@@ -154,6 +159,8 @@ const ProjectCard = memo(function ProjectCard({
   onEdit?: () => void;
   onDelete?: () => void;
 }) {
+  const { t } = useI18n();
+  const copy = localizeProject(t, p);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const cardRef = useRef<HTMLDivElement | null>(null);
   const [holderRef, inView] = useInView<HTMLDivElement>("200px");
@@ -203,7 +210,7 @@ const ProjectCard = memo(function ProjectCard({
   return (
     <m.div
       ref={cardRef}
-      data-lidar-project={p.title}
+      data-lidar-project={copy.title}
       onMouseEnter={handleEnter}
       onMouseMove={handleCardMouseMove}
       onMouseLeave={() => {
@@ -230,7 +237,7 @@ const ProjectCard = memo(function ProjectCard({
                 e.stopPropagation();
                 onEdit();
               }}
-              aria-label="Edit"
+              aria-label={t("common.edit")}
               className="grid h-8 w-8 place-items-center rounded-full bg-background/90 text-primary hover:glow-primary transition"
             >
               <Pencil className="h-3.5 w-3.5" />
@@ -242,7 +249,7 @@ const ProjectCard = memo(function ProjectCard({
                 e.stopPropagation();
                 onDelete();
               }}
-              aria-label="Delete"
+              aria-label={t("common.delete")}
               className="grid h-8 w-8 place-items-center rounded-full bg-background/90 text-destructive hover:bg-destructive hover:text-destructive-foreground transition"
             >
               <Trash2 className="h-3.5 w-3.5" />
@@ -276,7 +283,7 @@ const ProjectCard = memo(function ProjectCard({
                   src={posterSrc}
                   srcSet={imgSrcSet}
                   sizes={CARD_SIZES}
-                  alt={p.title}
+                  alt={copy.title}
                   loading="lazy"
                   decoding="async"
                   // @ts-expect-error fetchpriority is a valid HTML attr
@@ -299,7 +306,7 @@ const ProjectCard = memo(function ProjectCard({
               src={imgSrc}
               srcSet={imgSrcSet}
               sizes={CARD_SIZES}
-              alt={p.title}
+              alt={copy.title}
               loading="lazy"
               decoding="async"
               width={1024}
@@ -315,7 +322,7 @@ const ProjectCard = memo(function ProjectCard({
                   fb.setAttribute("data-fallback", "true");
                   fb.className =
                     "absolute inset-0 grid place-items-center text-xs text-muted-foreground bg-secondary/40";
-                  fb.textContent = "Image unavailable";
+                  fb.textContent = t("projects.imageUnavailable");
                   parent.appendChild(fb);
                 }
               }}
@@ -323,20 +330,20 @@ const ProjectCard = memo(function ProjectCard({
             />
           ) : (
             <div className="absolute inset-0 grid place-items-center text-xs text-muted-foreground bg-secondary/40">
-              No preview
+              {t("projects.noPreview")}
             </div>
           )}
         </div>
 
         <div className="space-y-1 p-4">
-          <p className="text-xs font-medium text-primary">{p.tag}</p>
+          <p className="text-xs font-medium text-primary">{copy.tag}</p>
           <div className="flex items-center justify-between gap-2">
-            <h3 className="text-sm font-semibold leading-tight">{p.title}</h3>
+            <h3 className="text-sm font-semibold leading-tight">{copy.title}</h3>
             <div className="project-arrow grid h-7 w-7 shrink-0 place-items-center rounded-full bg-primary/15 text-primary group-hover:bg-primary group-hover:text-primary-foreground">
               <ArrowRight className="h-3 w-3" />
             </div>
           </div>
-          <p className="text-xs text-muted-foreground">{p.tool}</p>
+          <p className="text-xs text-muted-foreground">{copy.tool}</p>
         </div>
       </button>
     </m.div>
@@ -374,11 +381,13 @@ function ProjectModalInner({
   idx: number;
   setIdx: (n: number) => void;
 }) {
+  const { t, formatNumber } = useI18n();
+  const copy = localizeProject(t, project);
   const dialogRef = useModalA11y(true, onClose);
-  const media: MediaItem[] = project.media ?? [
+  const media: MediaItem[] = copy.media ?? [
     project.video
-      ? { type: "video", src: project.video, caption: project.desc }
-      : { type: "image", src: project.img, caption: project.desc },
+      ? { type: "video", src: project.video, caption: copy.desc }
+      : { type: "image", src: project.img, caption: copy.desc },
   ];
   const safeIdx = Math.min(idx, media.length - 1);
   const current = media[safeIdx];
@@ -386,6 +395,7 @@ function ProjectModalInner({
   const go = (delta: number) => {
     setIdx((safeIdx + delta + media.length) % media.length);
   };
+  const catLabel = localizeFilterLabel(t, project.cat);
 
   return (
     <div
@@ -396,7 +406,7 @@ function ProjectModalInner({
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={project.title}
+        aria-label={copy.title}
         tabIndex={-1}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -406,7 +416,7 @@ function ProjectModalInner({
       >
         <button
           onClick={onClose}
-          aria-label="Close"
+          aria-label={t("common.close")}
           data-modal-close
           className="absolute right-4 top-4 z-20 grid h-10 w-10 place-items-center rounded-full bg-background/80 text-foreground hover:text-primary hover:glow-primary transition"
         >
@@ -428,7 +438,7 @@ function ProjectModalInner({
             <img
               key={current.src}
               src={current.src}
-              alt={project.title}
+              alt={copy.title}
               decoding="async"
               className="h-auto max-h-[65vh] w-full object-contain"
             />
@@ -438,20 +448,20 @@ function ProjectModalInner({
             <>
               <button
                 onClick={() => go(-1)}
-                aria-label="Previous"
+                aria-label={t("common.prev")}
                 className="absolute left-3 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-foreground hover:text-primary hover:glow-primary transition"
               >
                 <ChevronLeft className="h-5 w-5" />
               </button>
               <button
                 onClick={() => go(1)}
-                aria-label="Next"
+                aria-label={t("common.next")}
                 className="absolute right-3 top-1/2 z-10 grid h-10 w-10 -translate-y-1/2 place-items-center rounded-full bg-background/80 text-foreground hover:text-primary hover:glow-primary transition"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
               <div className="absolute bottom-3 left-1/2 z-10 -translate-x-1/2 rounded-full bg-background/80 px-3 py-1 text-xs text-muted-foreground">
-                {safeIdx + 1} / {media.length}
+                {formatNumber(safeIdx + 1)} / {formatNumber(media.length)}
               </div>
             </>
           )}
@@ -471,7 +481,7 @@ function ProjectModalInner({
               >
                 {mItem.type === "video" ? (
                   <div className="grid h-14 w-20 place-items-center bg-black/60 text-[10px] text-primary">
-                    VIDEO
+                    {t("projects.videoThumb")}
                   </div>
                 ) : (
                   <img
@@ -488,22 +498,20 @@ function ProjectModalInner({
         )}
 
         <div className="p-6 md:p-8">
-          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-            {project.tag}
-          </p>
-          <h3 className="mt-2 text-2xl font-bold md:text-3xl">{project.title}</h3>
+          <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">{copy.tag}</p>
+          <h3 className="mt-2 text-2xl font-bold md:text-3xl">{copy.title}</h3>
           {current.caption && hasMany && (
             <p className="mt-3 text-sm italic text-primary/90">{current.caption}</p>
           )}
           <p className="mt-4 text-sm leading-relaxed text-muted-foreground md:text-base">
-            {project.desc}
+            {copy.desc}
           </p>
           <div className="mt-5 flex flex-wrap items-center gap-2">
             <span className="rounded-md border border-border bg-secondary/40 px-3 py-1 text-xs text-muted-foreground">
-              {project.tool}
+              {copy.tool}
             </span>
             <span className="rounded-md border border-border bg-secondary/40 px-3 py-1 text-xs text-muted-foreground">
-              {project.cat}
+              {catLabel}
             </span>
             {project.externalLink && (
               <a
@@ -512,7 +520,7 @@ function ProjectModalInner({
                 rel="noreferrer"
                 className="inline-flex items-center gap-1.5 rounded-md bg-primary px-3 py-1 text-xs font-medium text-primary-foreground hover:opacity-90 transition"
               >
-                <ExternalLink className="h-3 w-3" /> Open link
+                <ExternalLink className="h-3 w-3" /> {t("projects.openLink")}
               </a>
             )}
           </div>

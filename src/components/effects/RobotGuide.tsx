@@ -1,11 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import {
   ROBOT_ARRIVAL_PAUSE_MS,
-  ROBOT_GUIDE_NAME,
   ROBOT_GUIDE_STOPS,
   ROBOT_NOTE_DURATION_MS,
   type RobotGuideStop,
 } from "@/data/robot-guide";
+import { useI18n } from "@/i18n";
 
 const LERP = 0.075;
 const MAX_STEP_PX = 10;
@@ -104,6 +104,8 @@ function GuideRobotSvg({ scanning }: { scanning: boolean }) {
 }
 
 export function RobotGuide() {
+  const { t } = useI18n();
+  const robotName = t("robot.name");
   const motionRef = useRef<HTMLDivElement>(null);
   const yRef = useRef(typeof window !== "undefined" ? window.innerHeight * 0.4 : 280);
   const targetYRef = useRef(yRef.current);
@@ -356,17 +358,22 @@ export function RobotGuide() {
             {activeStop && (
               <>
                 <p className="robot-guide-note-meta">
-                  <span>{ROBOT_GUIDE_NAME.toUpperCase()} NOTE</span>
+                  <span>{t("robot.noteMeta", { name: robotName.toUpperCase() })}</span>
                   <span aria-hidden> // </span>
                   <span>{activeStop.code}</span>
-                  <span className="robot-guide-note-label">{activeStop.label}</span>
+                  <span className="robot-guide-note-label">
+                    {t(`robot.stops.${activeStop.id}.label`)}
+                  </span>
                 </p>
                 <p className="robot-guide-note-body">
-                  {activeStop.lines.map((line) => (
-                    <span key={line} className="block">
-                      {line}
-                    </span>
-                  ))}
+                  {[0, 1].map((i) => {
+                    const line = t(`robot.stops.${activeStop.id}.line${i}`);
+                    return (
+                      <span key={i} className="block">
+                        {line}
+                      </span>
+                    );
+                  })}
                 </p>
                 <span className="robot-guide-note-stem" aria-hidden />
               </>
@@ -375,15 +382,18 @@ export function RobotGuide() {
 
           <div className="robot-guide-unit" aria-hidden>
             <GuideRobotSvg scanning={scanning && noteOpen === false} />
-            <p className="robot-guide-name">{ROBOT_GUIDE_NAME}</p>
+            <p className="robot-guide-name">{robotName}</p>
           </div>
         </div>
       </div>
 
       <span className="sr-only">
         {activeStop
-          ? `${ROBOT_GUIDE_NAME} at ${activeStop.label}: ${activeStop.lines.join(" ")}`
-          : `${ROBOT_GUIDE_NAME}, portfolio guide robot`}
+          ? t("robot.srActive", {
+              label: t(`robot.stops.${activeStop.id}.label`),
+              lines: `${t(`robot.stops.${activeStop.id}.line0`)} ${t(`robot.stops.${activeStop.id}.line1`)}`,
+            })
+          : t("robot.srIdle")}
       </span>
     </div>
   );

@@ -1,17 +1,21 @@
 import { Bot, Cpu, Sparkles, Layers, Activity, Shield, type LucideIcon } from "lucide-react";
 import { pub } from "@/lib/pub";
 
-export const NAV = [
-  "Home",
-  "About",
-  "Skills",
-  "Projects",
-  "Experience",
-  "Certificates",
-  "Contact",
+export const NAV_ITEMS = [
+  { id: "home", labelKey: "nav.home" },
+  { id: "about", labelKey: "nav.about" },
+  { id: "skills", labelKey: "nav.skills" },
+  { id: "projects", labelKey: "nav.projects" },
+  { id: "experience", labelKey: "nav.experience" },
+  { id: "certificates", labelKey: "nav.certificates" },
+  { id: "contact", labelKey: "nav.contact" },
 ] as const;
 
+export type ExperienceId = "mobtakeran" | "isdg" | "nyop" | "supishi";
+
 export type ExperienceItem = {
+  id: ExperienceId;
+  /** Fallback English (also used as seed / SEO); UI prefers i18n */
   co: string;
   role: string;
   year: string;
@@ -25,6 +29,7 @@ export type ExperienceItem = {
 
 export const EXPERIENCE: ExperienceItem[] = [
   {
+    id: "mobtakeran",
     co: "Mechatronic Mobtakeran Arg",
     role: "Industrial Designer",
     year: "2021",
@@ -36,6 +41,7 @@ export const EXPERIENCE: ExperienceItem[] = [
     ],
   },
   {
+    id: "isdg",
     co: "Iranian Steel Development Group",
     role: "Mechanical Designer & Engineer",
     year: "2022",
@@ -47,6 +53,7 @@ export const EXPERIENCE: ExperienceItem[] = [
     ],
   },
   {
+    id: "nyop",
     co: "NYOP — Netherlands",
     role: "Product Designer",
     year: "2024",
@@ -58,6 +65,7 @@ export const EXPERIENCE: ExperienceItem[] = [
     ],
   },
   {
+    id: "supishi",
     co: "Supishi Co",
     role: "Mechatronics Engineer",
     year: "Present",
@@ -73,19 +81,29 @@ export const EXPERIENCE: ExperienceItem[] = [
   },
 ];
 
-export const RESEARCH: { icon: LucideIcon; t: string; d: string }[] = [
-  { icon: Bot, t: "Reinforcement Learning", d: "Reward shaping & policy optimization" },
-  { icon: Cpu, t: "Autonomous Systems", d: "Mobile robotics & navigation" },
-  { icon: Sparkles, t: "LLM-Based Reward Shaping", d: "Language models guiding RL agents" },
-  { icon: Layers, t: "Sensor Fusion", d: "Multi-modal perception & estimation" },
-  { icon: Activity, t: "Intelligent Control", d: "MPC, adaptive & robust control" },
-  { icon: Shield, t: "Robotics Safety", d: "Constrained learning systems" },
+export type ResearchId =
+  | "rl"
+  | "autonomous"
+  | "llmReward"
+  | "sensorFusion"
+  | "intelligentControl"
+  | "roboticsSafety";
+
+export const RESEARCH: { id: ResearchId; icon: LucideIcon }[] = [
+  { id: "rl", icon: Bot },
+  { id: "autonomous", icon: Cpu },
+  { id: "llmReward", icon: Sparkles },
+  { id: "sensorFusion", icon: Layers },
+  { id: "intelligentControl", icon: Activity },
+  { id: "roboticsSafety", icon: Shield },
 ];
 
 export type Certificate = {
   src: string;
   width: number;
   height: number;
+  /** i18n key suffix under certificates.items.* */
+  i18nKey: string;
   title: string;
   issuer: string;
   category: string;
@@ -100,6 +118,7 @@ export const CERTIFICATES: Certificate[] = [
     src: pub("/pictures/cert-1.png"),
     width: 1218,
     height: 858,
+    i18nKey: "1FB53901",
     title: "Mastering Machine Learning with Python: A Comprehensive Online Course",
     issuer: "FaraDars",
     category: "Machine Learning",
@@ -112,6 +131,7 @@ export const CERTIFICATES: Certificate[] = [
     src: pub("/pictures/cert-2.png"),
     width: 1216,
     height: 858,
+    i18nKey: "05419F53",
     title: "Mastering Microsoft Project 2019: Your Ultimate Guide to Project Management Success",
     issuer: "FaraDars",
     category: "Project Management",
@@ -124,6 +144,7 @@ export const CERTIFICATES: Certificate[] = [
     src: pub("/pictures/cert-3.png"),
     width: 1140,
     height: 805,
+    i18nKey: "38FA56B2",
     title: "Mastering Python: Advanced Techniques for Reinforcement Learning",
     issuer: "FaraDars",
     category: "Reinforcement Learning",
@@ -136,6 +157,7 @@ export const CERTIFICATES: Certificate[] = [
     src: pub("/pictures/cert-4.png"),
     width: 1024,
     height: 715,
+    i18nKey: "5377F27D",
     title: "Fundamentals of Git with GitHub and GitLab",
     issuer: "FaraDars",
     category: "Version Control",
@@ -148,6 +170,7 @@ export const CERTIFICATES: Certificate[] = [
     src: pub("/pictures/cert-5.png"),
     width: 1024,
     height: 724,
+    i18nKey: "dc4fd977",
     title: "CS50's Introduction to Programming with Python",
     issuer: "Harvard University",
     category: "Python",

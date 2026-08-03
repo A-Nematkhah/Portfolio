@@ -3,27 +3,41 @@ import { m } from "framer-motion";
 import { ArrowRight, X, ExternalLink } from "lucide-react";
 import { CERTIFICATES, type Certificate } from "@/data/content";
 import { useModalA11y } from "@/hooks/use-modal-a11y";
+import { useT } from "@/i18n";
 
 const AUTO_PX_PER_SEC = 36;
 const RESUME_DELAY_MS = 1400;
 
+function certCopy(t: (k: string, p?: Record<string, string | number>) => string, c: Certificate) {
+  const base = `certificates.items.${c.i18nKey}`;
+  return {
+    title: t(`${base}.title`),
+    issuer: t(`${base}.issuer`),
+    category: t(`${base}.category`),
+    instructor: t(`${base}.instructor`),
+    issued: t(`${base}.issued`),
+  };
+}
+
 export function Certificates() {
   const [active, setActive] = useState<Certificate | null>(null);
+  const t = useT();
 
   return (
     <section id="certificates" className="py-20">
       <div data-lidar-object="CREDENTIALS" className="text-center">
-        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">Credentials</p>
-        <h2 className="mt-3 text-4xl font-bold md:text-5xl">Certificates</h2>
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
+          {t("certificates.eyebrow")}
+        </p>
+        <h2 className="mt-3 text-4xl font-bold md:text-5xl">{t("certificates.title")}</h2>
         <p className="mx-auto mt-4 max-w-xl text-sm text-muted-foreground">
-          Professional courses and credentials earned across engineering, simulation, and
-          intelligent systems.
+          {t("certificates.subtitle")}
         </p>
       </div>
 
       <CertRail paused={!!active} onOpen={setActive} />
       <p className="cert-marquee-hint" aria-hidden="true">
-        Drag to browse · Auto-slides
+        {t("certificates.hint")}
       </p>
 
       <CertificateModal certificate={active} onClose={() => setActive(null)} />
@@ -50,6 +64,7 @@ function CertRail({
   const reduceMotionRef = useRef(false);
   const rafRef = useRef(0);
   const lastTsRef = useRef(0);
+  const t = useT();
 
   const loop = [...CERTIFICATES, ...CERTIFICATES];
 
@@ -158,18 +173,20 @@ function CertRail({
       onPointerCancel={endDrag}
     >
       <div ref={trackRef} className="cert-marquee-track is-interactive">
-        {loop.map((c, i) => (
+        {loop.map((c, i) => {
+          const copy = certCopy(t, c);
+          return (
           <button
             key={`${c.certId}-${i}`}
             type="button"
-            data-lidar-object={i < CERTIFICATES.length ? c.title : undefined}
+            data-lidar-object={i < CERTIFICATES.length ? copy.title : undefined}
             onClick={() => onCardClick(c)}
-            className="cert-marquee-card group relative overflow-hidden rounded-xl surface-card p-3 text-left hover:glow-primary"
+            className="cert-marquee-card group relative overflow-hidden rounded-xl surface-card p-3 text-start hover:glow-primary"
           >
             <div className="overflow-hidden rounded-lg bg-muted aspect-[16/11]">
               <img
                 src={c.src}
-                alt={c.title}
+                alt={copy.title}
                 width={c.width}
                 height={c.height}
                 loading="lazy"
@@ -178,13 +195,14 @@ function CertRail({
               />
             </div>
             <div className="mt-3 flex items-center justify-between gap-2 px-1">
-              <span className="truncate text-xs font-medium text-muted-foreground">{c.issuer}</span>
+              <span className="truncate text-xs font-medium text-muted-foreground">{copy.issuer}</span>
               <span className="inline-flex shrink-0 items-center gap-1 text-xs font-medium text-primary">
-                View <ArrowRight className="h-3 w-3" />
+                {t("certificates.view")} <ArrowRight className="h-3 w-3" />
               </span>
             </div>
           </button>
-        ))}
+          );
+        })}
       </div>
     </div>
   );
@@ -199,8 +217,10 @@ function CertificateModal({
 }) {
   const close = useCallback(() => onClose(), [onClose]);
   const dialogRef = useModalA11y(!!certificate, close);
+  const t = useT();
 
   if (!certificate) return null;
+  const copy = certCopy(t, certificate);
 
   return (
     <div
@@ -211,7 +231,7 @@ function CertificateModal({
         ref={dialogRef}
         role="dialog"
         aria-modal="true"
-        aria-label={certificate.title}
+        aria-label={copy.title}
         tabIndex={-1}
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
@@ -221,16 +241,16 @@ function CertificateModal({
       >
         <button
           onClick={close}
-          aria-label="Close"
+          aria-label={t("common.close")}
           data-modal-close
-          className="absolute right-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-background/80 text-foreground hover:text-primary hover:glow-primary transition"
+          className="absolute end-4 top-4 z-10 grid h-10 w-10 place-items-center rounded-full bg-background/80 text-foreground hover:text-primary hover:glow-primary transition"
         >
           <X className="h-4 w-4" />
         </button>
         <div className="bg-black/40">
           <img
             src={certificate.src}
-            alt={certificate.title}
+            alt={copy.title}
             width={certificate.width}
             height={certificate.height}
             className="h-auto max-h-[75vh] w-full object-contain"
@@ -238,18 +258,18 @@ function CertificateModal({
         </div>
         <div className="p-6 md:p-8">
           <p className="text-xs font-semibold uppercase tracking-[0.3em] text-primary">
-            {certificate.category} <span className="mx-2 opacity-60">•</span> {certificate.issuer}
+            {copy.category} <span className="mx-2 opacity-60">•</span> {copy.issuer}
           </p>
-          <h3 className="mt-3 text-2xl font-bold md:text-3xl">{certificate.title}</h3>
+          <h3 className="mt-3 text-2xl font-bold md:text-3xl">{copy.title}</h3>
           <p className="mt-2 text-sm text-muted-foreground">
-            Instructed by {certificate.instructor}
+            {t("certificates.instructedBy", { name: copy.instructor })}
           </p>
 
           <div className="mt-6 grid gap-3 sm:grid-cols-3">
             {[
-              { l: "Issued", v: certificate.issued },
-              { l: "Certificate ID", v: certificate.certId },
-              { l: "Issuer", v: certificate.issuer },
+              { l: t("certificates.fields.issued"), v: copy.issued },
+              { l: t("certificates.fields.certId"), v: certificate.certId },
+              { l: t("certificates.fields.issuer"), v: copy.issuer },
             ].map((f) => (
               <div key={f.l} className="rounded-xl border border-border bg-secondary/30 p-4">
                 <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-muted-foreground">
@@ -266,7 +286,7 @@ function CertificateModal({
             rel="noreferrer"
             className="btn-primary mt-6"
           >
-            <ExternalLink className="h-4 w-4" /> Verify Certificate
+            <ExternalLink className="h-4 w-4" /> {t("certificates.verify")}
           </a>
         </div>
       </m.div>

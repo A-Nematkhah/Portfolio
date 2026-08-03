@@ -1,4 +1,5 @@
 import { useEffect, useRef } from "react";
+import { useI18n } from "@/i18n";
 
 /**
  * LidarCursor
@@ -45,9 +46,29 @@ export function LidarCursor() {
   const line1Ref = useRef<HTMLSpanElement | null>(null);
   const line2Ref = useRef<HTMLSpanElement | null>(null);
   const line3Ref = useRef<HTMLSpanElement | null>(null);
+  const { t, formatNumber, locale } = useI18n();
+  const stringsRef = useRef({
+    idle: t("lidar.idle"),
+    projectDetected: t("lidar.projectDetected"),
+    projectFallback: t("lidar.projectFallback"),
+    unknown: t("lidar.unknown"),
+    statusDetected: t("lidar.statusDetected"),
+    objectLine: (label: string) => t("lidar.objectLine", { label }),
+    distanceLine: (n: string) => t("lidar.distanceLine", { n }),
+  });
+
+  stringsRef.current = {
+    idle: t("lidar.idle"),
+    projectDetected: t("lidar.projectDetected"),
+    projectFallback: t("lidar.projectFallback"),
+    unknown: t("lidar.unknown"),
+    statusDetected: t("lidar.statusDetected"),
+    objectLine: (label: string) => t("lidar.objectLine", { label }),
+    distanceLine: (n: string) => t("lidar.distanceLine", { n: formatNumber(n) }),
+  };
 
   useEffect(() => {
-    if (isCoarsePointer()) return; // touch/mobile: native cursor stays untouched
+    if (isCoarsePointer()) return;
 
     const root = document.documentElement;
     root.classList.add("lidar-cursor-active");
@@ -73,6 +94,7 @@ export function LidarCursor() {
     };
 
     const onPointerMove = (e: PointerEvent) => {
+      const s = stringsRef.current;
       const target = e.target as Element | null;
       const overTextField = !!target?.closest(TEXT_INPUT_SELECTOR);
 
@@ -93,8 +115,8 @@ export function LidarCursor() {
       const objectEl = target?.closest(OBJECT_SELECTOR) as HTMLElement | null;
 
       if (projectEl) {
-        const title = (projectEl.dataset.lidarProject || "PROJECT").toUpperCase();
-        setReadout("project", title, "PROJECT DETECTED", title, "");
+        const title = (projectEl.dataset.lidarProject || s.projectFallback).toUpperCase();
+        setReadout("project", title, s.projectDetected, title, "");
       } else if (objectEl) {
         const rect = objectEl.getBoundingClientRect();
         const cx = rect.left + rect.width / 2;
@@ -102,10 +124,16 @@ export function LidarCursor() {
         const raw = Math.hypot(e.clientX - cx, e.clientY - cy) / 260;
         const jitter = Math.sin(performance.now() / 280) * 0.01;
         const dist = Math.max(0.05, raw + jitter).toFixed(2);
-        const label = objectEl.dataset.lidarObject || "UNKNOWN";
-        setReadout("object", label, `OBJECT: ${label}`, `DISTANCE: ${dist} m`, "STATUS: DETECTED");
+        const label = objectEl.dataset.lidarObject || s.unknown;
+        setReadout(
+          "object",
+          label,
+          s.objectLine(label),
+          s.distanceLine(dist),
+          s.statusDetected,
+        );
       } else {
-        setReadout("idle", "", "SCANNING...", "", "");
+        setReadout("idle", "", s.idle, "", "");
       }
     };
 
@@ -122,7 +150,7 @@ export function LidarCursor() {
       document.removeEventListener("pointermove", onPointerMove);
       document.removeEventListener("pointerleave", onPointerLeave);
     };
-  }, []);
+  }, [locale]);
 
   return (
     <div ref={wrapperRef} className="lidar-cursor" data-mode="idle" aria-hidden="true">
@@ -138,7 +166,7 @@ export function LidarCursor() {
       </svg>
       <div className="lidar-label">
         <span ref={line1Ref} className="lidar-line lidar-line-primary">
-          SCANNING...
+          {t("lidar.idle")}
         </span>
         <span ref={line2Ref} className="lidar-line" />
         <span ref={line3Ref} className="lidar-line" />
